@@ -1,0 +1,37 @@
+type User {
+	id: ID! @id
+	name: String!
+	username: String!
+	avatar: String
+    password: String!
+}
+
+type Post {
+	id: ID! @id
+	content: String
+	createdAt: DateTime! @createdAt
+	updatedAt: DateTime! @updatedAt
+	user: User!
+	media: Media!
+}
+
+type Media {
+	id: ID! @id
+	uri: String
+	type: MediaType
+}
+
+type MediaMeta {
+	id: ID! @id
+}
+
+type PostAnswer {
+    id: ID! @id
+	post: Post
+}
+
+enum MediaType {
+	Image
+	Video
+	Music
+}
