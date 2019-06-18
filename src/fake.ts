@@ -12,7 +12,7 @@ times(100, async (num: number) => {
         times(1, async (num: number) => {
             await prisma.createMedia({
                 type: "Video",
-                uri: "http://192.168.1.35:3000/ric.webm"
+                uri: "http://localhost:3000/ric.webm"
             }).then(async (media) => {
                 await prisma.createPost({
                     content: faker.lorem.words(random(1, 5)),

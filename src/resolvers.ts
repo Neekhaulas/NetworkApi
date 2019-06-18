@@ -4,10 +4,10 @@ import user from "./models/user";
 
 const resolversMap : IResolvers = {
     Query: {
-        async users(_: void, args: void, ctx: any) {
+        async users(_: any, args: void, ctx: any) {
             return ctx.prisma.users();
         },
-        async posts(_: void, args: any, ctx: any) {
+        async posts(_: any, args: any, ctx: any) {
             args.first = Math.min(20, args.first?args.first:20);
             const fragment = `
             fragment PostWithUser on Post {
@@ -30,6 +30,13 @@ const resolversMap : IResolvers = {
         },
         async user(_: void, args: any, ctx: any) {
             return ctx.prisma.user({ id: args.id});
+        }
+    },
+    Mutation: {
+        async login(_: any, args: any, ctx: any) {
+            return {
+                success: false
+            };
         }
     }
 };

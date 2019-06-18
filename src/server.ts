@@ -3,6 +3,7 @@ import * as express from "express";
 import { createServer } from "http";
 import { ApolloServer } from "apollo-server-express";
 import { prisma } from "./generated/prisma-client";
+import * as session from "express-session";
 
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
@@ -14,10 +15,22 @@ const app = express();
 
 app.use(express.static(PUBLIC_DIR));
 
+app.use(session({
+  secret: '123456',
+  name: 'sessionId',
+  resave: true,
+  saveUninitialized: true
+}));
+
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
-  context: { prisma },
+  context: async ({ req }) => {
+    return {
+      prisma,
+      req
+    }
+  },
   introspection: true,
   playground: true,
   debug: true,
@@ -27,11 +40,10 @@ const apolloServer = new ApolloServer({
 });
 
 apolloServer.applyMiddleware({ app, cors: {
-
   allowedHeaders: "Content-Type, Authorization",
   credentials: true,
   methods: "GET, POST, PUT, DELETE",
-  origin: "http://localhost:8080"
+  origin: "http://localhost:9090"
 } });
 
 const httpServer = createServer(

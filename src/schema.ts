@@ -9,8 +9,7 @@ const schema = gql`
     }
 
     type AuthPayload {
-        token: String
-        user: User
+        success: Boolean!
     }
 
     type Post {
