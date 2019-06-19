@@ -43,6 +43,7 @@ const schema = gql`
     
     type Query {
         user(id: ID): User
+        me: User
         users(first: Int, skip: Int, after: String): [User]
         posts(first: Int, skip: Int, after: String): [Post]
         medias: [Media]
