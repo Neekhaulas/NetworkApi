@@ -52,6 +52,10 @@ const resolversMap : IResolvers = {
                     success: true
                 };
             }
+        },
+        async logout(_: any, args: any, ctx: any) {
+            delete ctx.req.session.user;
+            return true;
         }
     }
 };

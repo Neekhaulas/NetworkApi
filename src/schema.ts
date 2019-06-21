@@ -52,6 +52,7 @@ const schema = gql`
     type Mutation {
         signup(username: String!, email: String!, password: String!): AuthPayload!
         login(username: String!, password: String!): AuthPayload!
+        logout: Boolean!
         uploadMedia(userId: ID!, uuid: String!, type: MediaType!): MediaMeta!
         post(content: String!, media: [ID]!): PostAnswer!
         setMediaUrl(mediaId: ID!, uri: String!): MediaMeta!

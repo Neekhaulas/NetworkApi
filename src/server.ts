@@ -15,12 +15,7 @@ const app = express();
 
 app.use(express.static(PUBLIC_DIR));
 
-app.use(session({
-  secret: '123456',
-  name: 'sessionId',
-  resave: true,
-  saveUninitialized: true
-}));
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true}));
 
 const apolloServer = new ApolloServer({
   typeDefs,
