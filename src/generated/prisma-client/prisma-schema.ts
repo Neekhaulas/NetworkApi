@@ -2,7 +2,11 @@
   // Please don't change this file manually but run `prisma generate` to update it.
   // For more information, please read the docs: https://www.prisma.io/docs/prisma-client/
 
-export const typeDefs = /* GraphQL */ `type AggregateMedia {
+export const typeDefs = /* GraphQL */ `type AggregateLike {
+  count: Int!
+}
+
+type AggregateMedia {
   count: Int!
 }
 
@@ -27,6 +31,111 @@ type BatchPayload {
 }
 
 scalar DateTime
+
+type Like {
+  id: ID!
+  post: Post!
+  user: User!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LikeConnection {
+  pageInfo: PageInfo!
+  edges: [LikeEdge]!
+  aggregate: AggregateLike!
+}
+
+input LikeCreateInput {
+  id: ID
+  post: PostCreateOneInput!
+  user: UserCreateOneInput!
+}
+
+type LikeEdge {
+  node: Like!
+  cursor: String!
+}
+
+enum LikeOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type LikePreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type LikeSubscriptionPayload {
+  mutation: MutationType!
+  node: Like
+  updatedFields: [String!]
+  previousValues: LikePreviousValues
+}
+
+input LikeSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: LikeWhereInput
+  AND: [LikeSubscriptionWhereInput!]
+  OR: [LikeSubscriptionWhereInput!]
+  NOT: [LikeSubscriptionWhereInput!]
+}
+
+input LikeUpdateInput {
+  post: PostUpdateOneRequiredInput
+  user: UserUpdateOneRequiredInput
+}
+
+input LikeWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  post: PostWhereInput
+  user: UserWhereInput
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  AND: [LikeWhereInput!]
+  OR: [LikeWhereInput!]
+  NOT: [LikeWhereInput!]
+}
+
+input LikeWhereUniqueInput {
+  id: ID
+}
 
 scalar Long
 
@@ -237,6 +346,11 @@ input MediaWhereUniqueInput {
 }
 
 type Mutation {
+  createLike(data: LikeCreateInput!): Like!
+  updateLike(data: LikeUpdateInput!, where: LikeWhereUniqueInput!): Like
+  upsertLike(where: LikeWhereUniqueInput!, create: LikeCreateInput!, update: LikeUpdateInput!): Like!
+  deleteLike(where: LikeWhereUniqueInput!): Like
+  deleteManyLikes(where: LikeWhereInput): BatchPayload!
   createMedia(data: MediaCreateInput!): Media!
   updateMedia(data: MediaUpdateInput!, where: MediaWhereUniqueInput!): Media
   updateManyMedias(data: MediaUpdateManyMutationInput!, where: MediaWhereInput): BatchPayload!
@@ -452,6 +566,13 @@ input PostUpdateOneInput {
   connect: PostWhereUniqueInput
 }
 
+input PostUpdateOneRequiredInput {
+  create: PostCreateInput
+  update: PostUpdateDataInput
+  upsert: PostUpsertNestedInput
+  connect: PostWhereUniqueInput
+}
+
 input PostUpsertNestedInput {
   update: PostUpdateDataInput!
   create: PostCreateInput!
@@ -514,6 +635,9 @@ input PostWhereUniqueInput {
 }
 
 type Query {
+  like(where: LikeWhereUniqueInput!): Like
+  likes(where: LikeWhereInput, orderBy: LikeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Like]!
+  likesConnection(where: LikeWhereInput, orderBy: LikeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): LikeConnection!
   media(where: MediaWhereUniqueInput!): Media
   medias(where: MediaWhereInput, orderBy: MediaOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Media]!
   mediasConnection(where: MediaWhereInput, orderBy: MediaOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): MediaConnection!
@@ -533,6 +657,7 @@ type Query {
 }
 
 type Subscription {
+  like(where: LikeSubscriptionWhereInput): LikeSubscriptionPayload
   media(where: MediaSubscriptionWhereInput): MediaSubscriptionPayload
   mediaMeta(where: MediaMetaSubscriptionWhereInput): MediaMetaSubscriptionPayload
   post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
@@ -542,7 +667,8 @@ type Subscription {
 
 type User {
   id: ID!
-  name: String!
+  email: String
+  name: String
   username: String!
   avatar: String
   password: String!
@@ -556,7 +682,8 @@ type UserConnection {
 
 input UserCreateInput {
   id: ID
-  name: String!
+  email: String
+  name: String
   username: String!
   avatar: String
   password: String!
@@ -575,6 +702,8 @@ type UserEdge {
 enum UserOrderByInput {
   id_ASC
   id_DESC
+  email_ASC
+  email_DESC
   name_ASC
   name_DESC
   username_ASC
@@ -587,7 +716,8 @@ enum UserOrderByInput {
 
 type UserPreviousValues {
   id: ID!
-  name: String!
+  email: String
+  name: String
   username: String!
   avatar: String
   password: String!
@@ -612,6 +742,7 @@ input UserSubscriptionWhereInput {
 }
 
 input UserUpdateDataInput {
+  email: String
   name: String
   username: String
   avatar: String
@@ -619,6 +750,7 @@ input UserUpdateDataInput {
 }
 
 input UserUpdateInput {
+  email: String
   name: String
   username: String
   avatar: String
@@ -626,6 +758,7 @@ input UserUpdateInput {
 }
 
 input UserUpdateManyMutationInput {
+  email: String
   name: String
   username: String
   avatar: String
@@ -659,6 +792,20 @@ input UserWhereInput {
   id_not_starts_with: ID
   id_ends_with: ID
   id_not_ends_with: ID
+  email: String
+  email_not: String
+  email_in: [String!]
+  email_not_in: [String!]
+  email_lt: String
+  email_lte: String
+  email_gt: String
+  email_gte: String
+  email_contains: String
+  email_not_contains: String
+  email_starts_with: String
+  email_not_starts_with: String
+  email_ends_with: String
+  email_not_ends_with: String
   name: String
   name_not: String
   name_in: [String!]

@@ -1,7 +1,4 @@
 import { IResolvers } from "graphql-tools";
-import user from "./models/user";
-import { UserWhereUniqueInput } from "./generated/prisma-client";
-//import User from "./models/user";
 
 const resolversMap : IResolvers = {
     Query: {
@@ -56,6 +53,65 @@ const resolversMap : IResolvers = {
         async logout(_: any, args: any, ctx: any) {
             delete ctx.req.session.user;
             return true;
+        },
+        async like(_: any, args: any, ctx: any) {
+            if(!ctx.req.session.user) {
+                throw new Error('Not authorized');
+            }
+            const exists : boolean = await ctx.prisma.$exists.like({
+                post: {
+                    id: args.post
+                },
+                user: {
+                    id: ctx.req.session.user
+                }
+            });
+            if(exists) return false; 
+            await ctx.prisma.createLike({
+                post: {
+                    connect: { id: args.post }
+                },
+                user: {
+                    connect: { id: ctx.req.session.user}
+                }
+            });
+            return true;
+        },
+        async signup(_: any, args: any, ctx: any) {
+            let user = await ctx.prisma.createUser({
+                email: args.email,
+                username: args.username,
+                password: args.password
+            });
+            ctx.req.session.user = user.id;
+            return {
+                success: true
+            };
+        }
+    },
+    Post: {
+        async likes(parent: any, args: any, ctx: any) {
+            const count : number = await ctx.prisma.likesConnection({
+                where: {
+                    post: { id: parent.id }
+                }
+            }).aggregate().count();
+            return count;
+        },
+        async like(parent: any, args: any, ctx: any) {
+            if(!ctx.req.session.user) {
+                return false;
+            }
+            const exists : boolean = await ctx.prisma.$exists.like({
+                post: {
+                    id: parent.id
+                },
+                user: {
+                    id: ctx.req.session.user
+                }
+            });
+            console.log(exists);
+            return exists;
         }
     }
 };

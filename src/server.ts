@@ -7,6 +7,7 @@ import * as session from "express-session";
 
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
+import onUpload from "./upload";
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = "./public";
@@ -16,6 +17,8 @@ const app = express();
 app.use(express.static(PUBLIC_DIR));
 
 app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true}));
+
+app.post("/upload", onUpload);
 
 const apolloServer = new ApolloServer({
   typeDefs,

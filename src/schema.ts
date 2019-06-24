@@ -19,6 +19,8 @@ const schema = gql`
         user: User
         media: Media
         createdAt: String
+        likes: Int
+        like: Boolean
     }
 
     type Media {
@@ -53,6 +55,7 @@ const schema = gql`
         signup(username: String!, email: String!, password: String!): AuthPayload!
         login(username: String!, password: String!): AuthPayload!
         logout: Boolean!
+        like(post: ID!): Boolean!
         uploadMedia(userId: ID!, uuid: String!, type: MediaType!): MediaMeta!
         post(content: String!, media: [ID]!): PostAnswer!
         setMediaUrl(mediaId: ID!, uri: String!): MediaMeta!

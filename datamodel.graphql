@@ -1,6 +1,7 @@
 type User {
 	id: ID! @id
-	name: String!
+	email: String
+	name: String
 	username: String! @unique
 	avatar: String
     password: String!
@@ -19,6 +20,14 @@ type Media {
 	id: ID! @id
 	uri: String
 	type: MediaType
+}
+
+type Like {
+	id: ID! @id
+	post: Post! @unique
+	user: User! @unique
+	createdAt: DateTime! @createdAt
+	updatedAt: DateTime! @updatedAt
 }
 
 type MediaMeta {

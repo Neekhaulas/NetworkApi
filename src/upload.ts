@@ -1,0 +1,228 @@
+import multiparty from "multiparty";
+import {v1} from "uuid";
+import {request} from "graphql-request";
+import ffmpeg from "fluent-ffmpeg";
+import mkdirp from "mkdirp";
+import fs from "fs";
+import rimraf from "rimraf";
+
+const endpoint = 'http://localhost:8080';
+const query = `
+mutation Upload($userId: ID!, $uuid: String!, $type: MediaType!) {
+  uploadMedia(userId: $userId, uuid: $uuid, type: $type) {
+    id
+  }
+}`;
+
+const endUpload = `
+mutation FinishedUpload($mediaId: ID!, $uri: String!) {
+  setMediaUrl(mediaId: $mediaId, uri: $uri) {
+    id
+  }
+}
+`;
+const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
+const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
+const uploadedFilesPath = './upload';
+const chunkDirName = "chunks";
+const publicDir = './public';
+
+export default function onUpload(req: any, res: any) {
+    console.log('upload');
+    var form = new multiparty.Form();
+
+    form.parse(req, function(err, fields, files) {
+      //console.log(fields);
+      switch(fields.method[0]) {
+        case 'INIT':
+          var uuid = v1();
+          request(endpoint, query, {
+            userId: 0,
+            uuid: uuid,
+            type: "video"
+          }).then(data => {
+            res.set("Content-Type", "application/json");
+            res.send({
+              "uuid": uuid,
+              "id": data.uploadMedia.id
+            });
+          });
+        break;
+        case 'SEND':
+          // text/plain is required to ensure support for IE9 and older
+          res.set("Content-Type", "text/plain");
+          onChunkedUpload(fields, files[fileInputName][0], res);
+        break;
+      }
+    });
+}
+
+function onChunkedUpload(fields: any, file: any, res: any) {
+    var size = parseInt(fields.qqtotalfilesize),
+        uuid = fields.qquuid,
+        index = fields.qqpartindex,
+        totalParts = parseInt(fields.qqtotalparts),
+        responseData = {
+            error: '',
+            success: false,
+            mediaId: fields.mediaId
+        };
+
+    file.name = fields.qqfilename;
+
+    if (isValid(size)) {
+        storeChunk(file, uuid, index, totalParts, function() {
+            if (index < totalParts - 1) {
+                responseData.success = true;
+                res.send(responseData);
+            }
+            else {
+                combineChunks(file, uuid, function(fileDestination: any) {
+                        responseData.success = true;
+                        res.send(responseData);
+                        request(endpoint, endUpload, {
+                            mediaId: parseInt(fields.mediaId),
+                            uri: uuid[0]
+                        });
+                        var duration = new Date().getTime();
+                        ffmpeg.ffprobe(fileDestination, function(err, metadata) {
+                            ffmpeg(fileDestination)
+                                .size('?x480')
+                                .videoCodec('libx264')
+                                .audioCodec('aac')
+                                .videoBitrate('2500k')
+                                .aspect(metadata.streams[0].width / metadata.streams[0].height)
+                                .duration(30)
+                                .output(fileDestination + '480p.mp4')
+                                .on('end', (res) => {
+                                    console.log((new Date().getTime() - duration) / 1000);
+                                })
+                                .run();
+                        });
+                            
+                        console.log(fileDestination);
+                    },
+                    function() {
+                        responseData.error = "Problem conbining the chunks!";
+                        res.send(responseData);
+                    });
+            }
+        },
+        function(reset: any) {
+            responseData.error = "Problem storing the chunk!";
+            res.send(responseData);
+        });
+    }
+    else {
+        failWithTooBigFile(responseData, res);
+    }
+}
+
+function failWithTooBigFile(responseData: any, res: any) {
+    responseData.error = "Too big!";
+    responseData.preventRetry = true;
+    res.send(responseData);
+}
+
+function isValid(size: any) {
+    return maxFileSize === 0 || size < maxFileSize;
+}
+
+function moveFile(destinationDir: any, sourceFile: any, destinationFile: any, success: any, failure: any) {
+    mkdirp(destinationDir, function(error: any) {
+        let sourceStream : any;
+        let destStream : any;
+
+        if (error) {
+            console.error("Problem creating directory " + destinationDir + ": " + error);
+            failure();
+        }
+        else {
+            sourceStream = fs.createReadStream(sourceFile);
+            destStream = fs.createWriteStream(destinationFile);
+
+            sourceStream
+                .on("error", function(error : any) {
+                    console.error("Problem copying file: " + error.stack);
+                    destStream.end();
+                    failure();
+                })
+                .on("end", function(){
+                    destStream.end();
+                    success();
+                })
+                .pipe(destStream);
+        }
+    });
+}
+
+function moveUploadedFile(file: any, uuid: any, success: any, failure: any) {
+    var destinationDir = uploadedFilesPath + uuid + "/",
+        fileDestination = destinationDir + file.name;
+
+    moveFile(destinationDir, file.path, fileDestination, success, failure);
+}
+
+function storeChunk(file: any, uuid: any, index: any, numChunks: any, success: any, failure: any) {
+    var destinationDir = uploadedFilesPath + uuid + "/" + chunkDirName + "/",
+        chunkFilename = getChunkFilename(index, numChunks),
+        fileDestination = destinationDir + chunkFilename;
+
+    moveFile(destinationDir, file.path, fileDestination, success, failure);
+}
+
+function combineChunks(file: any, uuid: any, success: any, failure: any) {
+    var chunksDir = uploadedFilesPath + uuid + "/" + chunkDirName + "/",
+        destinationDir = uploadedFilesPath + uuid + "/",
+        fileDestination = publicDir + "/" + uuid;
+
+
+    fs.readdir(chunksDir, function(err, fileNames) {
+        var destFileStream;
+
+        if (err) {
+            console.error("Problem listing chunks! " + err);
+            failure();
+        }
+        else {
+            fileNames.sort();
+            destFileStream = fs.createWriteStream(fileDestination, {flags: "a"});
+
+            appendToStream(destFileStream, chunksDir, fileNames, 0, function() {
+                rimraf(destinationDir, function(rimrafError) {
+                    if (rimrafError) {
+                        console.log("Problem deleting chunks dir! " + rimrafError);
+                    }
+                });
+                success(fileDestination);
+            },
+            failure);
+        }
+    });
+}
+
+function appendToStream(destStream: any, srcDir: any, srcFilesnames: any, index: any, success: any, failure: any) {
+    if (index < srcFilesnames.length) {
+        fs.createReadStream(srcDir + srcFilesnames[index])
+            .on("end", function() {
+                appendToStream(destStream, srcDir, srcFilesnames, index + 1, success, failure);
+            })
+            .on("error", function(error) {
+                console.error("Problem appending chunk! " + error);
+                destStream.end();
+                failure();
+            })
+            .pipe(destStream, {end: false});
+    }
+    else {
+        destStream.end();
+        success();
+    }
+}
+
+function getChunkFilename(index: any, count: any) {
+    var digits = new String(count).length,
+        zeros = new Array(digits + 1).join("0");
+
+    return (zeros + index).slice(-digits);
+}

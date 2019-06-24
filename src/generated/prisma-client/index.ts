@@ -16,6 +16,7 @@ export type AtLeastOne<T, U = { [K in keyof T]: Pick<T, K> }> = Partial<T> &
 export type Maybe<T> = T | undefined | null;
 
 export interface Exists {
+  like: (where?: LikeWhereInput) => Promise<boolean>;
   media: (where?: MediaWhereInput) => Promise<boolean>;
   mediaMeta: (where?: MediaMetaWhereInput) => Promise<boolean>;
   post: (where?: PostWhereInput) => Promise<boolean>;
@@ -42,6 +43,25 @@ export interface Prisma {
    * Queries
    */
 
+  like: (where: LikeWhereUniqueInput) => LikeNullablePromise;
+  likes: (args?: {
+    where?: LikeWhereInput;
+    orderBy?: LikeOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => FragmentableArray<Like>;
+  likesConnection: (args?: {
+    where?: LikeWhereInput;
+    orderBy?: LikeOrderByInput;
+    skip?: Int;
+    after?: String;
+    before?: String;
+    first?: Int;
+    last?: Int;
+  }) => LikeConnectionPromise;
   media: (where: MediaWhereUniqueInput) => MediaNullablePromise;
   medias: (args?: {
     where?: MediaWhereInput;
@@ -143,6 +163,18 @@ export interface Prisma {
    * Mutations
    */
 
+  createLike: (data: LikeCreateInput) => LikePromise;
+  updateLike: (args: {
+    data: LikeUpdateInput;
+    where: LikeWhereUniqueInput;
+  }) => LikePromise;
+  upsertLike: (args: {
+    where: LikeWhereUniqueInput;
+    create: LikeCreateInput;
+    update: LikeUpdateInput;
+  }) => LikePromise;
+  deleteLike: (where: LikeWhereUniqueInput) => LikePromise;
+  deleteManyLikes: (where?: LikeWhereInput) => BatchPayloadPromise;
   createMedia: (data: MediaCreateInput) => MediaPromise;
   updateMedia: (args: {
     data: MediaUpdateInput;
@@ -215,6 +247,9 @@ export interface Prisma {
 }
 
 export interface Subscription {
+  like: (
+    where?: LikeSubscriptionWhereInput
+  ) => LikeSubscriptionPayloadSubscription;
   media: (
     where?: MediaSubscriptionWhereInput
   ) => MediaSubscriptionPayloadSubscription;
@@ -240,6 +275,24 @@ export interface ClientConstructor<T> {
  * Types
  */
 
+export type LikeOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "createdAt_ASC"
+  | "createdAt_DESC"
+  | "updatedAt_ASC"
+  | "updatedAt_DESC";
+
+export type MediaOrderByInput =
+  | "id_ASC"
+  | "id_DESC"
+  | "uri_ASC"
+  | "uri_DESC"
+  | "type_ASC"
+  | "type_DESC";
+
+export type MediaType = "Image" | "Video" | "Music";
+
 export type MutationType = "CREATED" | "UPDATED" | "DELETED";
 
 export type MediaMetaOrderByInput = "id_ASC" | "id_DESC";
@@ -254,21 +307,13 @@ export type PostOrderByInput =
   | "updatedAt_ASC"
   | "updatedAt_DESC";
 
-export type MediaOrderByInput =
-  | "id_ASC"
-  | "id_DESC"
-  | "uri_ASC"
-  | "uri_DESC"
-  | "type_ASC"
-  | "type_DESC";
-
 export type PostAnswerOrderByInput = "id_ASC" | "id_DESC";
-
-export type MediaType = "Image" | "Video" | "Music";
 
 export type UserOrderByInput =
   | "id_ASC"
   | "id_DESC"
+  | "email_ASC"
+  | "email_DESC"
   | "name_ASC"
   | "name_DESC"
   | "username_ASC"
@@ -277,280 +322,6 @@ export type UserOrderByInput =
   | "avatar_DESC"
   | "password_ASC"
   | "password_DESC";
-
-export interface PostWhereInput {
-  id?: Maybe<ID_Input>;
-  id_not?: Maybe<ID_Input>;
-  id_in?: Maybe<ID_Input[] | ID_Input>;
-  id_not_in?: Maybe<ID_Input[] | ID_Input>;
-  id_lt?: Maybe<ID_Input>;
-  id_lte?: Maybe<ID_Input>;
-  id_gt?: Maybe<ID_Input>;
-  id_gte?: Maybe<ID_Input>;
-  id_contains?: Maybe<ID_Input>;
-  id_not_contains?: Maybe<ID_Input>;
-  id_starts_with?: Maybe<ID_Input>;
-  id_not_starts_with?: Maybe<ID_Input>;
-  id_ends_with?: Maybe<ID_Input>;
-  id_not_ends_with?: Maybe<ID_Input>;
-  content?: Maybe<String>;
-  content_not?: Maybe<String>;
-  content_in?: Maybe<String[] | String>;
-  content_not_in?: Maybe<String[] | String>;
-  content_lt?: Maybe<String>;
-  content_lte?: Maybe<String>;
-  content_gt?: Maybe<String>;
-  content_gte?: Maybe<String>;
-  content_contains?: Maybe<String>;
-  content_not_contains?: Maybe<String>;
-  content_starts_with?: Maybe<String>;
-  content_not_starts_with?: Maybe<String>;
-  content_ends_with?: Maybe<String>;
-  content_not_ends_with?: Maybe<String>;
-  createdAt?: Maybe<DateTimeInput>;
-  createdAt_not?: Maybe<DateTimeInput>;
-  createdAt_in?: Maybe<DateTimeInput[] | DateTimeInput>;
-  createdAt_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
-  createdAt_lt?: Maybe<DateTimeInput>;
-  createdAt_lte?: Maybe<DateTimeInput>;
-  createdAt_gt?: Maybe<DateTimeInput>;
-  createdAt_gte?: Maybe<DateTimeInput>;
-  updatedAt?: Maybe<DateTimeInput>;
-  updatedAt_not?: Maybe<DateTimeInput>;
-  updatedAt_in?: Maybe<DateTimeInput[] | DateTimeInput>;
-  updatedAt_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
-  updatedAt_lt?: Maybe<DateTimeInput>;
-  updatedAt_lte?: Maybe<DateTimeInput>;
-  updatedAt_gt?: Maybe<DateTimeInput>;
-  updatedAt_gte?: Maybe<DateTimeInput>;
-  user?: Maybe<UserWhereInput>;
-  media?: Maybe<MediaWhereInput>;
-  AND?: Maybe<PostWhereInput[] | PostWhereInput>;
-  OR?: Maybe<PostWhereInput[] | PostWhereInput>;
-  NOT?: Maybe<PostWhereInput[] | PostWhereInput>;
-}
-
-export interface MediaMetaCreateInput {
-  id?: Maybe<ID_Input>;
-}
-
-export interface MediaUpdateDataInput {
-  uri?: Maybe<String>;
-  type?: Maybe<MediaType>;
-}
-
-export type MediaWhereUniqueInput = AtLeastOne<{
-  id: Maybe<ID_Input>;
-}>;
-
-export interface MediaUpdateOneRequiredInput {
-  create?: Maybe<MediaCreateInput>;
-  update?: Maybe<MediaUpdateDataInput>;
-  upsert?: Maybe<MediaUpsertNestedInput>;
-  connect?: Maybe<MediaWhereUniqueInput>;
-}
-
-export interface MediaSubscriptionWhereInput {
-  mutation_in?: Maybe<MutationType[] | MutationType>;
-  updatedFields_contains?: Maybe<String>;
-  updatedFields_contains_every?: Maybe<String[] | String>;
-  updatedFields_contains_some?: Maybe<String[] | String>;
-  node?: Maybe<MediaWhereInput>;
-  AND?: Maybe<MediaSubscriptionWhereInput[] | MediaSubscriptionWhereInput>;
-  OR?: Maybe<MediaSubscriptionWhereInput[] | MediaSubscriptionWhereInput>;
-  NOT?: Maybe<MediaSubscriptionWhereInput[] | MediaSubscriptionWhereInput>;
-}
-
-export type PostAnswerWhereUniqueInput = AtLeastOne<{
-  id: Maybe<ID_Input>;
-}>;
-
-export interface UserUpdateInput {
-  name?: Maybe<String>;
-  username?: Maybe<String>;
-  avatar?: Maybe<String>;
-  password?: Maybe<String>;
-}
-
-export interface UserUpsertNestedInput {
-  update: UserUpdateDataInput;
-  create: UserCreateInput;
-}
-
-export interface PostUpsertNestedInput {
-  update: PostUpdateDataInput;
-  create: PostCreateInput;
-}
-
-export interface PostAnswerWhereInput {
-  id?: Maybe<ID_Input>;
-  id_not?: Maybe<ID_Input>;
-  id_in?: Maybe<ID_Input[] | ID_Input>;
-  id_not_in?: Maybe<ID_Input[] | ID_Input>;
-  id_lt?: Maybe<ID_Input>;
-  id_lte?: Maybe<ID_Input>;
-  id_gt?: Maybe<ID_Input>;
-  id_gte?: Maybe<ID_Input>;
-  id_contains?: Maybe<ID_Input>;
-  id_not_contains?: Maybe<ID_Input>;
-  id_starts_with?: Maybe<ID_Input>;
-  id_not_starts_with?: Maybe<ID_Input>;
-  id_ends_with?: Maybe<ID_Input>;
-  id_not_ends_with?: Maybe<ID_Input>;
-  post?: Maybe<PostWhereInput>;
-  AND?: Maybe<PostAnswerWhereInput[] | PostAnswerWhereInput>;
-  OR?: Maybe<PostAnswerWhereInput[] | PostAnswerWhereInput>;
-  NOT?: Maybe<PostAnswerWhereInput[] | PostAnswerWhereInput>;
-}
-
-export interface MediaMetaSubscriptionWhereInput {
-  mutation_in?: Maybe<MutationType[] | MutationType>;
-  updatedFields_contains?: Maybe<String>;
-  updatedFields_contains_every?: Maybe<String[] | String>;
-  updatedFields_contains_some?: Maybe<String[] | String>;
-  node?: Maybe<MediaMetaWhereInput>;
-  AND?: Maybe<
-    MediaMetaSubscriptionWhereInput[] | MediaMetaSubscriptionWhereInput
-  >;
-  OR?: Maybe<
-    MediaMetaSubscriptionWhereInput[] | MediaMetaSubscriptionWhereInput
-  >;
-  NOT?: Maybe<
-    MediaMetaSubscriptionWhereInput[] | MediaMetaSubscriptionWhereInput
-  >;
-}
-
-export interface MediaWhereInput {
-  id?: Maybe<ID_Input>;
-  id_not?: Maybe<ID_Input>;
-  id_in?: Maybe<ID_Input[] | ID_Input>;
-  id_not_in?: Maybe<ID_Input[] | ID_Input>;
-  id_lt?: Maybe<ID_Input>;
-  id_lte?: Maybe<ID_Input>;
-  id_gt?: Maybe<ID_Input>;
-  id_gte?: Maybe<ID_Input>;
-  id_contains?: Maybe<ID_Input>;
-  id_not_contains?: Maybe<ID_Input>;
-  id_starts_with?: Maybe<ID_Input>;
-  id_not_starts_with?: Maybe<ID_Input>;
-  id_ends_with?: Maybe<ID_Input>;
-  id_not_ends_with?: Maybe<ID_Input>;
-  uri?: Maybe<String>;
-  uri_not?: Maybe<String>;
-  uri_in?: Maybe<String[] | String>;
-  uri_not_in?: Maybe<String[] | String>;
-  uri_lt?: Maybe<String>;
-  uri_lte?: Maybe<String>;
-  uri_gt?: Maybe<String>;
-  uri_gte?: Maybe<String>;
-  uri_contains?: Maybe<String>;
-  uri_not_contains?: Maybe<String>;
-  uri_starts_with?: Maybe<String>;
-  uri_not_starts_with?: Maybe<String>;
-  uri_ends_with?: Maybe<String>;
-  uri_not_ends_with?: Maybe<String>;
-  type?: Maybe<MediaType>;
-  type_not?: Maybe<MediaType>;
-  type_in?: Maybe<MediaType[] | MediaType>;
-  type_not_in?: Maybe<MediaType[] | MediaType>;
-  AND?: Maybe<MediaWhereInput[] | MediaWhereInput>;
-  OR?: Maybe<MediaWhereInput[] | MediaWhereInput>;
-  NOT?: Maybe<MediaWhereInput[] | MediaWhereInput>;
-}
-
-export interface PostUpdateOneInput {
-  create?: Maybe<PostCreateInput>;
-  update?: Maybe<PostUpdateDataInput>;
-  upsert?: Maybe<PostUpsertNestedInput>;
-  delete?: Maybe<Boolean>;
-  disconnect?: Maybe<Boolean>;
-  connect?: Maybe<PostWhereUniqueInput>;
-}
-
-export interface UserUpdateDataInput {
-  name?: Maybe<String>;
-  username?: Maybe<String>;
-  avatar?: Maybe<String>;
-  password?: Maybe<String>;
-}
-
-export type PostWhereUniqueInput = AtLeastOne<{
-  id: Maybe<ID_Input>;
-}>;
-
-export interface UserUpdateOneRequiredInput {
-  create?: Maybe<UserCreateInput>;
-  update?: Maybe<UserUpdateDataInput>;
-  upsert?: Maybe<UserUpsertNestedInput>;
-  connect?: Maybe<UserWhereUniqueInput>;
-}
-
-export interface PostAnswerCreateInput {
-  id?: Maybe<ID_Input>;
-  post?: Maybe<PostCreateOneInput>;
-}
-
-export interface PostUpdateInput {
-  content?: Maybe<String>;
-  user?: Maybe<UserUpdateOneRequiredInput>;
-  media?: Maybe<MediaUpdateOneRequiredInput>;
-}
-
-export interface UserSubscriptionWhereInput {
-  mutation_in?: Maybe<MutationType[] | MutationType>;
-  updatedFields_contains?: Maybe<String>;
-  updatedFields_contains_every?: Maybe<String[] | String>;
-  updatedFields_contains_some?: Maybe<String[] | String>;
-  node?: Maybe<UserWhereInput>;
-  AND?: Maybe<UserSubscriptionWhereInput[] | UserSubscriptionWhereInput>;
-  OR?: Maybe<UserSubscriptionWhereInput[] | UserSubscriptionWhereInput>;
-  NOT?: Maybe<UserSubscriptionWhereInput[] | UserSubscriptionWhereInput>;
-}
-
-export type UserWhereUniqueInput = AtLeastOne<{
-  id: Maybe<ID_Input>;
-  username?: Maybe<String>;
-}>;
-
-export interface PostSubscriptionWhereInput {
-  mutation_in?: Maybe<MutationType[] | MutationType>;
-  updatedFields_contains?: Maybe<String>;
-  updatedFields_contains_every?: Maybe<String[] | String>;
-  updatedFields_contains_some?: Maybe<String[] | String>;
-  node?: Maybe<PostWhereInput>;
-  AND?: Maybe<PostSubscriptionWhereInput[] | PostSubscriptionWhereInput>;
-  OR?: Maybe<PostSubscriptionWhereInput[] | PostSubscriptionWhereInput>;
-  NOT?: Maybe<PostSubscriptionWhereInput[] | PostSubscriptionWhereInput>;
-}
-
-export interface PostAnswerSubscriptionWhereInput {
-  mutation_in?: Maybe<MutationType[] | MutationType>;
-  updatedFields_contains?: Maybe<String>;
-  updatedFields_contains_every?: Maybe<String[] | String>;
-  updatedFields_contains_some?: Maybe<String[] | String>;
-  node?: Maybe<PostAnswerWhereInput>;
-  AND?: Maybe<
-    PostAnswerSubscriptionWhereInput[] | PostAnswerSubscriptionWhereInput
-  >;
-  OR?: Maybe<
-    PostAnswerSubscriptionWhereInput[] | PostAnswerSubscriptionWhereInput
-  >;
-  NOT?: Maybe<
-    PostAnswerSubscriptionWhereInput[] | PostAnswerSubscriptionWhereInput
-  >;
-}
-
-export interface UserUpdateManyMutationInput {
-  name?: Maybe<String>;
-  username?: Maybe<String>;
-  avatar?: Maybe<String>;
-  password?: Maybe<String>;
-}
-
-export interface MediaCreateOneInput {
-  create?: Maybe<MediaCreateInput>;
-  connect?: Maybe<MediaWhereUniqueInput>;
-}
 
 export interface MediaMetaWhereInput {
   id?: Maybe<ID_Input>;
@@ -572,58 +343,35 @@ export interface MediaMetaWhereInput {
   NOT?: Maybe<MediaMetaWhereInput[] | MediaMetaWhereInput>;
 }
 
-export interface UserCreateInput {
-  id?: Maybe<ID_Input>;
-  name: String;
-  username: String;
-  avatar?: Maybe<String>;
-  password: String;
-}
-
-export interface PostAnswerUpdateInput {
-  post?: Maybe<PostUpdateOneInput>;
-}
-
 export interface UserCreateOneInput {
   create?: Maybe<UserCreateInput>;
   connect?: Maybe<UserWhereUniqueInput>;
 }
 
-export interface PostUpdateManyMutationInput {
-  content?: Maybe<String>;
-}
-
-export interface MediaUpsertNestedInput {
-  update: MediaUpdateDataInput;
-  create: MediaCreateInput;
-}
-
-export interface MediaUpdateManyMutationInput {
-  uri?: Maybe<String>;
-  type?: Maybe<MediaType>;
-}
-
-export interface MediaUpdateInput {
-  uri?: Maybe<String>;
-  type?: Maybe<MediaType>;
-}
-
-export interface MediaCreateInput {
-  id?: Maybe<ID_Input>;
-  uri?: Maybe<String>;
-  type?: Maybe<MediaType>;
-}
-
-export interface PostCreateInput {
-  id?: Maybe<ID_Input>;
-  content?: Maybe<String>;
-  user: UserCreateOneInput;
-  media: MediaCreateOneInput;
-}
-
-export type MediaMetaWhereUniqueInput = AtLeastOne<{
+export type PostWhereUniqueInput = AtLeastOne<{
   id: Maybe<ID_Input>;
 }>;
+
+export type LikeWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
+
+export interface MediaMetaSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<MediaMetaWhereInput>;
+  AND?: Maybe<
+    MediaMetaSubscriptionWhereInput[] | MediaMetaSubscriptionWhereInput
+  >;
+  OR?: Maybe<
+    MediaMetaSubscriptionWhereInput[] | MediaMetaSubscriptionWhereInput
+  >;
+  NOT?: Maybe<
+    MediaMetaSubscriptionWhereInput[] | MediaMetaSubscriptionWhereInput
+  >;
+}
 
 export interface UserWhereInput {
   id?: Maybe<ID_Input>;
@@ -640,6 +388,20 @@ export interface UserWhereInput {
   id_not_starts_with?: Maybe<ID_Input>;
   id_ends_with?: Maybe<ID_Input>;
   id_not_ends_with?: Maybe<ID_Input>;
+  email?: Maybe<String>;
+  email_not?: Maybe<String>;
+  email_in?: Maybe<String[] | String>;
+  email_not_in?: Maybe<String[] | String>;
+  email_lt?: Maybe<String>;
+  email_lte?: Maybe<String>;
+  email_gt?: Maybe<String>;
+  email_gte?: Maybe<String>;
+  email_contains?: Maybe<String>;
+  email_not_contains?: Maybe<String>;
+  email_starts_with?: Maybe<String>;
+  email_not_starts_with?: Maybe<String>;
+  email_ends_with?: Maybe<String>;
+  email_not_ends_with?: Maybe<String>;
   name?: Maybe<String>;
   name_not?: Maybe<String>;
   name_in?: Maybe<String[] | String>;
@@ -701,9 +463,205 @@ export interface UserWhereInput {
   NOT?: Maybe<UserWhereInput[] | UserWhereInput>;
 }
 
-export interface PostCreateOneInput {
+export interface MediaUpdateDataInput {
+  uri?: Maybe<String>;
+  type?: Maybe<MediaType>;
+}
+
+export interface PostWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  content?: Maybe<String>;
+  content_not?: Maybe<String>;
+  content_in?: Maybe<String[] | String>;
+  content_not_in?: Maybe<String[] | String>;
+  content_lt?: Maybe<String>;
+  content_lte?: Maybe<String>;
+  content_gt?: Maybe<String>;
+  content_gte?: Maybe<String>;
+  content_contains?: Maybe<String>;
+  content_not_contains?: Maybe<String>;
+  content_starts_with?: Maybe<String>;
+  content_not_starts_with?: Maybe<String>;
+  content_ends_with?: Maybe<String>;
+  content_not_ends_with?: Maybe<String>;
+  createdAt?: Maybe<DateTimeInput>;
+  createdAt_not?: Maybe<DateTimeInput>;
+  createdAt_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  createdAt_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  createdAt_lt?: Maybe<DateTimeInput>;
+  createdAt_lte?: Maybe<DateTimeInput>;
+  createdAt_gt?: Maybe<DateTimeInput>;
+  createdAt_gte?: Maybe<DateTimeInput>;
+  updatedAt?: Maybe<DateTimeInput>;
+  updatedAt_not?: Maybe<DateTimeInput>;
+  updatedAt_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  updatedAt_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  updatedAt_lt?: Maybe<DateTimeInput>;
+  updatedAt_lte?: Maybe<DateTimeInput>;
+  updatedAt_gt?: Maybe<DateTimeInput>;
+  updatedAt_gte?: Maybe<DateTimeInput>;
+  user?: Maybe<UserWhereInput>;
+  media?: Maybe<MediaWhereInput>;
+  AND?: Maybe<PostWhereInput[] | PostWhereInput>;
+  OR?: Maybe<PostWhereInput[] | PostWhereInput>;
+  NOT?: Maybe<PostWhereInput[] | PostWhereInput>;
+}
+
+export interface MediaUpdateOneRequiredInput {
+  create?: Maybe<MediaCreateInput>;
+  update?: Maybe<MediaUpdateDataInput>;
+  upsert?: Maybe<MediaUpsertNestedInput>;
+  connect?: Maybe<MediaWhereUniqueInput>;
+}
+
+export interface UserUpdateManyMutationInput {
+  email?: Maybe<String>;
+  name?: Maybe<String>;
+  username?: Maybe<String>;
+  avatar?: Maybe<String>;
+  password?: Maybe<String>;
+}
+
+export interface UserUpsertNestedInput {
+  update: UserUpdateDataInput;
+  create: UserCreateInput;
+}
+
+export interface PostUpdateOneInput {
   create?: Maybe<PostCreateInput>;
+  update?: Maybe<PostUpdateDataInput>;
+  upsert?: Maybe<PostUpsertNestedInput>;
+  delete?: Maybe<Boolean>;
+  disconnect?: Maybe<Boolean>;
   connect?: Maybe<PostWhereUniqueInput>;
+}
+
+export type PostAnswerWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
+
+export interface PostAnswerCreateInput {
+  id?: Maybe<ID_Input>;
+  post?: Maybe<PostCreateOneInput>;
+}
+
+export interface UserUpdateDataInput {
+  email?: Maybe<String>;
+  name?: Maybe<String>;
+  username?: Maybe<String>;
+  avatar?: Maybe<String>;
+  password?: Maybe<String>;
+}
+
+export interface LikeWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  post?: Maybe<PostWhereInput>;
+  user?: Maybe<UserWhereInput>;
+  createdAt?: Maybe<DateTimeInput>;
+  createdAt_not?: Maybe<DateTimeInput>;
+  createdAt_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  createdAt_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  createdAt_lt?: Maybe<DateTimeInput>;
+  createdAt_lte?: Maybe<DateTimeInput>;
+  createdAt_gt?: Maybe<DateTimeInput>;
+  createdAt_gte?: Maybe<DateTimeInput>;
+  updatedAt?: Maybe<DateTimeInput>;
+  updatedAt_not?: Maybe<DateTimeInput>;
+  updatedAt_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  updatedAt_not_in?: Maybe<DateTimeInput[] | DateTimeInput>;
+  updatedAt_lt?: Maybe<DateTimeInput>;
+  updatedAt_lte?: Maybe<DateTimeInput>;
+  updatedAt_gt?: Maybe<DateTimeInput>;
+  updatedAt_gte?: Maybe<DateTimeInput>;
+  AND?: Maybe<LikeWhereInput[] | LikeWhereInput>;
+  OR?: Maybe<LikeWhereInput[] | LikeWhereInput>;
+  NOT?: Maybe<LikeWhereInput[] | LikeWhereInput>;
+}
+
+export interface PostAnswerWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  post?: Maybe<PostWhereInput>;
+  AND?: Maybe<PostAnswerWhereInput[] | PostAnswerWhereInput>;
+  OR?: Maybe<PostAnswerWhereInput[] | PostAnswerWhereInput>;
+  NOT?: Maybe<PostAnswerWhereInput[] | PostAnswerWhereInput>;
+}
+
+export interface PostUpdateInput {
+  content?: Maybe<String>;
+  user?: Maybe<UserUpdateOneRequiredInput>;
+  media?: Maybe<MediaUpdateOneRequiredInput>;
+}
+
+export interface PostSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<PostWhereInput>;
+  AND?: Maybe<PostSubscriptionWhereInput[] | PostSubscriptionWhereInput>;
+  OR?: Maybe<PostSubscriptionWhereInput[] | PostSubscriptionWhereInput>;
+  NOT?: Maybe<PostSubscriptionWhereInput[] | PostSubscriptionWhereInput>;
+}
+
+export type MediaMetaWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
+
+export interface UserUpdateOneRequiredInput {
+  create?: Maybe<UserCreateInput>;
+  update?: Maybe<UserUpdateDataInput>;
+  upsert?: Maybe<UserUpsertNestedInput>;
+  connect?: Maybe<UserWhereUniqueInput>;
+}
+
+export interface UserSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<UserWhereInput>;
+  AND?: Maybe<UserSubscriptionWhereInput[] | UserSubscriptionWhereInput>;
+  OR?: Maybe<UserSubscriptionWhereInput[] | UserSubscriptionWhereInput>;
+  NOT?: Maybe<UserSubscriptionWhereInput[] | UserSubscriptionWhereInput>;
 }
 
 export interface PostUpdateDataInput {
@@ -712,381 +670,200 @@ export interface PostUpdateDataInput {
   media?: Maybe<MediaUpdateOneRequiredInput>;
 }
 
+export interface MediaUpdateInput {
+  uri?: Maybe<String>;
+  type?: Maybe<MediaType>;
+}
+
+export interface PostUpdateOneRequiredInput {
+  create?: Maybe<PostCreateInput>;
+  update?: Maybe<PostUpdateDataInput>;
+  upsert?: Maybe<PostUpsertNestedInput>;
+  connect?: Maybe<PostWhereUniqueInput>;
+}
+
+export interface MediaUpsertNestedInput {
+  update: MediaUpdateDataInput;
+  create: MediaCreateInput;
+}
+
+export type UserWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+  username?: Maybe<String>;
+}>;
+
+export interface LikeSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<LikeWhereInput>;
+  AND?: Maybe<LikeSubscriptionWhereInput[] | LikeSubscriptionWhereInput>;
+  OR?: Maybe<LikeSubscriptionWhereInput[] | LikeSubscriptionWhereInput>;
+  NOT?: Maybe<LikeSubscriptionWhereInput[] | LikeSubscriptionWhereInput>;
+}
+
+export interface PostAnswerSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<PostAnswerWhereInput>;
+  AND?: Maybe<
+    PostAnswerSubscriptionWhereInput[] | PostAnswerSubscriptionWhereInput
+  >;
+  OR?: Maybe<
+    PostAnswerSubscriptionWhereInput[] | PostAnswerSubscriptionWhereInput
+  >;
+  NOT?: Maybe<
+    PostAnswerSubscriptionWhereInput[] | PostAnswerSubscriptionWhereInput
+  >;
+}
+
+export interface PostAnswerUpdateInput {
+  post?: Maybe<PostUpdateOneInput>;
+}
+
+export interface LikeUpdateInput {
+  post?: Maybe<PostUpdateOneRequiredInput>;
+  user?: Maybe<UserUpdateOneRequiredInput>;
+}
+
+export interface PostUpdateManyMutationInput {
+  content?: Maybe<String>;
+}
+
+export interface MediaCreateInput {
+  id?: Maybe<ID_Input>;
+  uri?: Maybe<String>;
+  type?: Maybe<MediaType>;
+}
+
+export interface MediaUpdateManyMutationInput {
+  uri?: Maybe<String>;
+  type?: Maybe<MediaType>;
+}
+
+export interface MediaCreateOneInput {
+  create?: Maybe<MediaCreateInput>;
+  connect?: Maybe<MediaWhereUniqueInput>;
+}
+
+export interface PostUpsertNestedInput {
+  update: PostUpdateDataInput;
+  create: PostCreateInput;
+}
+
+export interface UserUpdateInput {
+  email?: Maybe<String>;
+  name?: Maybe<String>;
+  username?: Maybe<String>;
+  avatar?: Maybe<String>;
+  password?: Maybe<String>;
+}
+
+export interface PostCreateInput {
+  id?: Maybe<ID_Input>;
+  content?: Maybe<String>;
+  user: UserCreateOneInput;
+  media: MediaCreateOneInput;
+}
+
+export interface PostCreateOneInput {
+  create?: Maybe<PostCreateInput>;
+  connect?: Maybe<PostWhereUniqueInput>;
+}
+
+export interface LikeCreateInput {
+  id?: Maybe<ID_Input>;
+  post: PostCreateOneInput;
+  user: UserCreateOneInput;
+}
+
+export interface UserCreateInput {
+  id?: Maybe<ID_Input>;
+  email?: Maybe<String>;
+  name?: Maybe<String>;
+  username: String;
+  avatar?: Maybe<String>;
+  password: String;
+}
+
+export type MediaWhereUniqueInput = AtLeastOne<{
+  id: Maybe<ID_Input>;
+}>;
+
+export interface MediaWhereInput {
+  id?: Maybe<ID_Input>;
+  id_not?: Maybe<ID_Input>;
+  id_in?: Maybe<ID_Input[] | ID_Input>;
+  id_not_in?: Maybe<ID_Input[] | ID_Input>;
+  id_lt?: Maybe<ID_Input>;
+  id_lte?: Maybe<ID_Input>;
+  id_gt?: Maybe<ID_Input>;
+  id_gte?: Maybe<ID_Input>;
+  id_contains?: Maybe<ID_Input>;
+  id_not_contains?: Maybe<ID_Input>;
+  id_starts_with?: Maybe<ID_Input>;
+  id_not_starts_with?: Maybe<ID_Input>;
+  id_ends_with?: Maybe<ID_Input>;
+  id_not_ends_with?: Maybe<ID_Input>;
+  uri?: Maybe<String>;
+  uri_not?: Maybe<String>;
+  uri_in?: Maybe<String[] | String>;
+  uri_not_in?: Maybe<String[] | String>;
+  uri_lt?: Maybe<String>;
+  uri_lte?: Maybe<String>;
+  uri_gt?: Maybe<String>;
+  uri_gte?: Maybe<String>;
+  uri_contains?: Maybe<String>;
+  uri_not_contains?: Maybe<String>;
+  uri_starts_with?: Maybe<String>;
+  uri_not_starts_with?: Maybe<String>;
+  uri_ends_with?: Maybe<String>;
+  uri_not_ends_with?: Maybe<String>;
+  type?: Maybe<MediaType>;
+  type_not?: Maybe<MediaType>;
+  type_in?: Maybe<MediaType[] | MediaType>;
+  type_not_in?: Maybe<MediaType[] | MediaType>;
+  AND?: Maybe<MediaWhereInput[] | MediaWhereInput>;
+  OR?: Maybe<MediaWhereInput[] | MediaWhereInput>;
+  NOT?: Maybe<MediaWhereInput[] | MediaWhereInput>;
+}
+
+export interface MediaSubscriptionWhereInput {
+  mutation_in?: Maybe<MutationType[] | MutationType>;
+  updatedFields_contains?: Maybe<String>;
+  updatedFields_contains_every?: Maybe<String[] | String>;
+  updatedFields_contains_some?: Maybe<String[] | String>;
+  node?: Maybe<MediaWhereInput>;
+  AND?: Maybe<MediaSubscriptionWhereInput[] | MediaSubscriptionWhereInput>;
+  OR?: Maybe<MediaSubscriptionWhereInput[] | MediaSubscriptionWhereInput>;
+  NOT?: Maybe<MediaSubscriptionWhereInput[] | MediaSubscriptionWhereInput>;
+}
+
+export interface MediaMetaCreateInput {
+  id?: Maybe<ID_Input>;
+}
+
 export interface NodeNode {
   id: ID_Output;
 }
 
-export interface MediaMeta {
-  id: ID_Output;
-}
-
-export interface MediaMetaPromise extends Promise<MediaMeta>, Fragmentable {
-  id: () => Promise<ID_Output>;
-}
-
-export interface MediaMetaSubscription
-  extends Promise<AsyncIterator<MediaMeta>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-}
-
-export interface MediaMetaNullablePromise
-  extends Promise<MediaMeta | null>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-}
-
-export interface UserPreviousValues {
-  id: ID_Output;
-  name: String;
-  username: String;
-  avatar?: String;
-  password: String;
-}
-
-export interface UserPreviousValuesPromise
-  extends Promise<UserPreviousValues>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
-  username: () => Promise<String>;
-  avatar: () => Promise<String>;
-  password: () => Promise<String>;
-}
-
-export interface UserPreviousValuesSubscription
-  extends Promise<AsyncIterator<UserPreviousValues>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
-  username: () => Promise<AsyncIterator<String>>;
-  avatar: () => Promise<AsyncIterator<String>>;
-  password: () => Promise<AsyncIterator<String>>;
-}
-
-export interface MediaMetaConnection {
-  pageInfo: PageInfo;
-  edges: MediaMetaEdge[];
-}
-
-export interface MediaMetaConnectionPromise
-  extends Promise<MediaMetaConnection>,
-    Fragmentable {
-  pageInfo: <T = PageInfoPromise>() => T;
-  edges: <T = FragmentableArray<MediaMetaEdge>>() => T;
-  aggregate: <T = AggregateMediaMetaPromise>() => T;
-}
-
-export interface MediaMetaConnectionSubscription
-  extends Promise<AsyncIterator<MediaMetaConnection>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<MediaMetaEdgeSubscription>>>() => T;
-  aggregate: <T = AggregateMediaMetaSubscription>() => T;
-}
-
-export interface PostAnswerSubscriptionPayload {
-  mutation: MutationType;
-  node: PostAnswer;
-  updatedFields: String[];
-  previousValues: PostAnswerPreviousValues;
-}
-
-export interface PostAnswerSubscriptionPayloadPromise
-  extends Promise<PostAnswerSubscriptionPayload>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = PostAnswerPromise>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = PostAnswerPreviousValuesPromise>() => T;
-}
-
-export interface PostAnswerSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<PostAnswerSubscriptionPayload>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = PostAnswerSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = PostAnswerPreviousValuesSubscription>() => T;
-}
-
-export interface BatchPayload {
-  count: Long;
-}
-
-export interface BatchPayloadPromise
-  extends Promise<BatchPayload>,
-    Fragmentable {
-  count: () => Promise<Long>;
-}
-
-export interface BatchPayloadSubscription
-  extends Promise<AsyncIterator<BatchPayload>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Long>>;
-}
-
-export interface AggregateMedia {
+export interface AggregateLike {
   count: Int;
 }
 
-export interface AggregateMediaPromise
-  extends Promise<AggregateMedia>,
+export interface AggregateLikePromise
+  extends Promise<AggregateLike>,
     Fragmentable {
   count: () => Promise<Int>;
 }
 
-export interface AggregateMediaSubscription
-  extends Promise<AsyncIterator<AggregateMedia>>,
+export interface AggregateLikeSubscription
+  extends Promise<AsyncIterator<AggregateLike>>,
     Fragmentable {
   count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface AggregateUser {
-  count: Int;
-}
-
-export interface AggregateUserPromise
-  extends Promise<AggregateUser>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateUserSubscription
-  extends Promise<AsyncIterator<AggregateUser>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface UserConnection {
-  pageInfo: PageInfo;
-  edges: UserEdge[];
-}
-
-export interface UserConnectionPromise
-  extends Promise<UserConnection>,
-    Fragmentable {
-  pageInfo: <T = PageInfoPromise>() => T;
-  edges: <T = FragmentableArray<UserEdge>>() => T;
-  aggregate: <T = AggregateUserPromise>() => T;
-}
-
-export interface UserConnectionSubscription
-  extends Promise<AsyncIterator<UserConnection>>,
-    Fragmentable {
-  pageInfo: <T = PageInfoSubscription>() => T;
-  edges: <T = Promise<AsyncIterator<UserEdgeSubscription>>>() => T;
-  aggregate: <T = AggregateUserSubscription>() => T;
-}
-
-export interface MediaEdge {
-  node: Media;
-  cursor: String;
-}
-
-export interface MediaEdgePromise extends Promise<MediaEdge>, Fragmentable {
-  node: <T = MediaPromise>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface MediaEdgeSubscription
-  extends Promise<AsyncIterator<MediaEdge>>,
-    Fragmentable {
-  node: <T = MediaSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PostAnswerEdge {
-  node: PostAnswer;
-  cursor: String;
-}
-
-export interface PostAnswerEdgePromise
-  extends Promise<PostAnswerEdge>,
-    Fragmentable {
-  node: <T = PostAnswerPromise>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface PostAnswerEdgeSubscription
-  extends Promise<AsyncIterator<PostAnswerEdge>>,
-    Fragmentable {
-  node: <T = PostAnswerSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface Media {
-  id: ID_Output;
-  uri?: String;
-  type?: MediaType;
-}
-
-export interface MediaPromise extends Promise<Media>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  uri: () => Promise<String>;
-  type: () => Promise<MediaType>;
-}
-
-export interface MediaSubscription
-  extends Promise<AsyncIterator<Media>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  uri: () => Promise<AsyncIterator<String>>;
-  type: () => Promise<AsyncIterator<MediaType>>;
-}
-
-export interface MediaNullablePromise
-  extends Promise<Media | null>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  uri: () => Promise<String>;
-  type: () => Promise<MediaType>;
-}
-
-export interface PostAnswer {
-  id: ID_Output;
-}
-
-export interface PostAnswerPromise extends Promise<PostAnswer>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  post: <T = PostPromise>() => T;
-}
-
-export interface PostAnswerSubscription
-  extends Promise<AsyncIterator<PostAnswer>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  post: <T = PostSubscription>() => T;
-}
-
-export interface PostAnswerNullablePromise
-  extends Promise<PostAnswer | null>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  post: <T = PostPromise>() => T;
-}
-
-export interface PageInfo {
-  hasNextPage: Boolean;
-  hasPreviousPage: Boolean;
-  startCursor?: String;
-  endCursor?: String;
-}
-
-export interface PageInfoPromise extends Promise<PageInfo>, Fragmentable {
-  hasNextPage: () => Promise<Boolean>;
-  hasPreviousPage: () => Promise<Boolean>;
-  startCursor: () => Promise<String>;
-  endCursor: () => Promise<String>;
-}
-
-export interface PageInfoSubscription
-  extends Promise<AsyncIterator<PageInfo>>,
-    Fragmentable {
-  hasNextPage: () => Promise<AsyncIterator<Boolean>>;
-  hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
-  startCursor: () => Promise<AsyncIterator<String>>;
-  endCursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface PostEdge {
-  node: Post;
-  cursor: String;
-}
-
-export interface PostEdgePromise extends Promise<PostEdge>, Fragmentable {
-  node: <T = PostPromise>() => T;
-  cursor: () => Promise<String>;
-}
-
-export interface PostEdgeSubscription
-  extends Promise<AsyncIterator<PostEdge>>,
-    Fragmentable {
-  node: <T = PostSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
-}
-
-export interface MediaSubscriptionPayload {
-  mutation: MutationType;
-  node: Media;
-  updatedFields: String[];
-  previousValues: MediaPreviousValues;
-}
-
-export interface MediaSubscriptionPayloadPromise
-  extends Promise<MediaSubscriptionPayload>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = MediaPromise>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = MediaPreviousValuesPromise>() => T;
-}
-
-export interface MediaSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<MediaSubscriptionPayload>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = MediaSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = MediaPreviousValuesSubscription>() => T;
-}
-
-export interface User {
-  id: ID_Output;
-  name: String;
-  username: String;
-  avatar?: String;
-  password: String;
-}
-
-export interface UserPromise extends Promise<User>, Fragmentable {
-  id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
-  username: () => Promise<String>;
-  avatar: () => Promise<String>;
-  password: () => Promise<String>;
-}
-
-export interface UserSubscription
-  extends Promise<AsyncIterator<User>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  name: () => Promise<AsyncIterator<String>>;
-  username: () => Promise<AsyncIterator<String>>;
-  avatar: () => Promise<AsyncIterator<String>>;
-  password: () => Promise<AsyncIterator<String>>;
-}
-
-export interface UserNullablePromise
-  extends Promise<User | null>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  name: () => Promise<String>;
-  username: () => Promise<String>;
-  avatar: () => Promise<String>;
-  password: () => Promise<String>;
-}
-
-export interface MediaPreviousValues {
-  id: ID_Output;
-  uri?: String;
-  type?: MediaType;
-}
-
-export interface MediaPreviousValuesPromise
-  extends Promise<MediaPreviousValues>,
-    Fragmentable {
-  id: () => Promise<ID_Output>;
-  uri: () => Promise<String>;
-  type: () => Promise<MediaType>;
-}
-
-export interface MediaPreviousValuesSubscription
-  extends Promise<AsyncIterator<MediaPreviousValues>>,
-    Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
-  uri: () => Promise<AsyncIterator<String>>;
-  type: () => Promise<AsyncIterator<MediaType>>;
 }
 
 export interface Post {
@@ -1127,6 +904,437 @@ export interface PostNullablePromise
   media: <T = MediaPromise>() => T;
 }
 
+export interface LikeEdge {
+  node: Like;
+  cursor: String;
+}
+
+export interface LikeEdgePromise extends Promise<LikeEdge>, Fragmentable {
+  node: <T = LikePromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface LikeEdgeSubscription
+  extends Promise<AsyncIterator<LikeEdge>>,
+    Fragmentable {
+  node: <T = LikeSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface UserPreviousValues {
+  id: ID_Output;
+  email?: String;
+  name?: String;
+  username: String;
+  avatar?: String;
+  password: String;
+}
+
+export interface UserPreviousValuesPromise
+  extends Promise<UserPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  email: () => Promise<String>;
+  name: () => Promise<String>;
+  username: () => Promise<String>;
+  avatar: () => Promise<String>;
+  password: () => Promise<String>;
+}
+
+export interface UserPreviousValuesSubscription
+  extends Promise<AsyncIterator<UserPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  email: () => Promise<AsyncIterator<String>>;
+  name: () => Promise<AsyncIterator<String>>;
+  username: () => Promise<AsyncIterator<String>>;
+  avatar: () => Promise<AsyncIterator<String>>;
+  password: () => Promise<AsyncIterator<String>>;
+}
+
+export interface AggregateUser {
+  count: Int;
+}
+
+export interface AggregateUserPromise
+  extends Promise<AggregateUser>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateUserSubscription
+  extends Promise<AsyncIterator<AggregateUser>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface UserConnection {
+  pageInfo: PageInfo;
+  edges: UserEdge[];
+}
+
+export interface UserConnectionPromise
+  extends Promise<UserConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<UserEdge>>() => T;
+  aggregate: <T = AggregateUserPromise>() => T;
+}
+
+export interface UserConnectionSubscription
+  extends Promise<AsyncIterator<UserConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<UserEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateUserSubscription>() => T;
+}
+
+export interface PageInfo {
+  hasNextPage: Boolean;
+  hasPreviousPage: Boolean;
+  startCursor?: String;
+  endCursor?: String;
+}
+
+export interface PageInfoPromise extends Promise<PageInfo>, Fragmentable {
+  hasNextPage: () => Promise<Boolean>;
+  hasPreviousPage: () => Promise<Boolean>;
+  startCursor: () => Promise<String>;
+  endCursor: () => Promise<String>;
+}
+
+export interface PageInfoSubscription
+  extends Promise<AsyncIterator<PageInfo>>,
+    Fragmentable {
+  hasNextPage: () => Promise<AsyncIterator<Boolean>>;
+  hasPreviousPage: () => Promise<AsyncIterator<Boolean>>;
+  startCursor: () => Promise<AsyncIterator<String>>;
+  endCursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface PostAnswerEdge {
+  node: PostAnswer;
+  cursor: String;
+}
+
+export interface PostAnswerEdgePromise
+  extends Promise<PostAnswerEdge>,
+    Fragmentable {
+  node: <T = PostAnswerPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface PostAnswerEdgeSubscription
+  extends Promise<AsyncIterator<PostAnswerEdge>>,
+    Fragmentable {
+  node: <T = PostAnswerSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface LikeConnection {
+  pageInfo: PageInfo;
+  edges: LikeEdge[];
+}
+
+export interface LikeConnectionPromise
+  extends Promise<LikeConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<LikeEdge>>() => T;
+  aggregate: <T = AggregateLikePromise>() => T;
+}
+
+export interface LikeConnectionSubscription
+  extends Promise<AsyncIterator<LikeConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<LikeEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateLikeSubscription>() => T;
+}
+
+export interface PostAnswer {
+  id: ID_Output;
+}
+
+export interface PostAnswerPromise extends Promise<PostAnswer>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  post: <T = PostPromise>() => T;
+}
+
+export interface PostAnswerSubscription
+  extends Promise<AsyncIterator<PostAnswer>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  post: <T = PostSubscription>() => T;
+}
+
+export interface PostAnswerNullablePromise
+  extends Promise<PostAnswer | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  post: <T = PostPromise>() => T;
+}
+
+export interface Like {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  updatedAt: DateTimeOutput;
+}
+
+export interface LikePromise extends Promise<Like>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  post: <T = PostPromise>() => T;
+  user: <T = UserPromise>() => T;
+  createdAt: () => Promise<DateTimeOutput>;
+  updatedAt: () => Promise<DateTimeOutput>;
+}
+
+export interface LikeSubscription
+  extends Promise<AsyncIterator<Like>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  post: <T = PostSubscription>() => T;
+  user: <T = UserSubscription>() => T;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+}
+
+export interface LikeNullablePromise
+  extends Promise<Like | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  post: <T = PostPromise>() => T;
+  user: <T = UserPromise>() => T;
+  createdAt: () => Promise<DateTimeOutput>;
+  updatedAt: () => Promise<DateTimeOutput>;
+}
+
+export interface PostEdge {
+  node: Post;
+  cursor: String;
+}
+
+export interface PostEdgePromise extends Promise<PostEdge>, Fragmentable {
+  node: <T = PostPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface PostEdgeSubscription
+  extends Promise<AsyncIterator<PostEdge>>,
+    Fragmentable {
+  node: <T = PostSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface Media {
+  id: ID_Output;
+  uri?: String;
+  type?: MediaType;
+}
+
+export interface MediaPromise extends Promise<Media>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  uri: () => Promise<String>;
+  type: () => Promise<MediaType>;
+}
+
+export interface MediaSubscription
+  extends Promise<AsyncIterator<Media>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  uri: () => Promise<AsyncIterator<String>>;
+  type: () => Promise<AsyncIterator<MediaType>>;
+}
+
+export interface MediaNullablePromise
+  extends Promise<Media | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  uri: () => Promise<String>;
+  type: () => Promise<MediaType>;
+}
+
+export interface AggregateMediaMeta {
+  count: Int;
+}
+
+export interface AggregateMediaMetaPromise
+  extends Promise<AggregateMediaMeta>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateMediaMetaSubscription
+  extends Promise<AsyncIterator<AggregateMediaMeta>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface LikeSubscriptionPayload {
+  mutation: MutationType;
+  node: Like;
+  updatedFields: String[];
+  previousValues: LikePreviousValues;
+}
+
+export interface LikeSubscriptionPayloadPromise
+  extends Promise<LikeSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = LikePromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = LikePreviousValuesPromise>() => T;
+}
+
+export interface LikeSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<LikeSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = LikeSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = LikePreviousValuesSubscription>() => T;
+}
+
+export interface BatchPayload {
+  count: Long;
+}
+
+export interface BatchPayloadPromise
+  extends Promise<BatchPayload>,
+    Fragmentable {
+  count: () => Promise<Long>;
+}
+
+export interface BatchPayloadSubscription
+  extends Promise<AsyncIterator<BatchPayload>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Long>>;
+}
+
+export interface LikePreviousValues {
+  id: ID_Output;
+  createdAt: DateTimeOutput;
+  updatedAt: DateTimeOutput;
+}
+
+export interface LikePreviousValuesPromise
+  extends Promise<LikePreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  createdAt: () => Promise<DateTimeOutput>;
+  updatedAt: () => Promise<DateTimeOutput>;
+}
+
+export interface LikePreviousValuesSubscription
+  extends Promise<AsyncIterator<LikePreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  createdAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+  updatedAt: () => Promise<AsyncIterator<DateTimeOutput>>;
+}
+
+export interface MediaMetaConnection {
+  pageInfo: PageInfo;
+  edges: MediaMetaEdge[];
+}
+
+export interface MediaMetaConnectionPromise
+  extends Promise<MediaMetaConnection>,
+    Fragmentable {
+  pageInfo: <T = PageInfoPromise>() => T;
+  edges: <T = FragmentableArray<MediaMetaEdge>>() => T;
+  aggregate: <T = AggregateMediaMetaPromise>() => T;
+}
+
+export interface MediaMetaConnectionSubscription
+  extends Promise<AsyncIterator<MediaMetaConnection>>,
+    Fragmentable {
+  pageInfo: <T = PageInfoSubscription>() => T;
+  edges: <T = Promise<AsyncIterator<MediaMetaEdgeSubscription>>>() => T;
+  aggregate: <T = AggregateMediaMetaSubscription>() => T;
+}
+
+export interface User {
+  id: ID_Output;
+  email?: String;
+  name?: String;
+  username: String;
+  avatar?: String;
+  password: String;
+}
+
+export interface UserPromise extends Promise<User>, Fragmentable {
+  id: () => Promise<ID_Output>;
+  email: () => Promise<String>;
+  name: () => Promise<String>;
+  username: () => Promise<String>;
+  avatar: () => Promise<String>;
+  password: () => Promise<String>;
+}
+
+export interface UserSubscription
+  extends Promise<AsyncIterator<User>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  email: () => Promise<AsyncIterator<String>>;
+  name: () => Promise<AsyncIterator<String>>;
+  username: () => Promise<AsyncIterator<String>>;
+  avatar: () => Promise<AsyncIterator<String>>;
+  password: () => Promise<AsyncIterator<String>>;
+}
+
+export interface UserNullablePromise
+  extends Promise<User | null>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+  email: () => Promise<String>;
+  name: () => Promise<String>;
+  username: () => Promise<String>;
+  avatar: () => Promise<String>;
+  password: () => Promise<String>;
+}
+
+export interface AggregateMedia {
+  count: Int;
+}
+
+export interface AggregateMediaPromise
+  extends Promise<AggregateMedia>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregateMediaSubscription
+  extends Promise<AsyncIterator<AggregateMedia>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface MediaSubscriptionPayload {
+  mutation: MutationType;
+  node: Media;
+  updatedFields: String[];
+  previousValues: MediaPreviousValues;
+}
+
+export interface MediaSubscriptionPayloadPromise
+  extends Promise<MediaSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = MediaPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = MediaPreviousValuesPromise>() => T;
+}
+
+export interface MediaSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<MediaSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = MediaSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = MediaPreviousValuesSubscription>() => T;
+}
+
 export interface MediaConnection {
   pageInfo: PageInfo;
   edges: MediaEdge[];
@@ -1148,23 +1356,74 @@ export interface MediaConnectionSubscription
   aggregate: <T = AggregateMediaSubscription>() => T;
 }
 
-export interface MediaMetaEdge {
-  node: MediaMeta;
-  cursor: String;
+export interface MediaPreviousValues {
+  id: ID_Output;
+  uri?: String;
+  type?: MediaType;
 }
 
-export interface MediaMetaEdgePromise
-  extends Promise<MediaMetaEdge>,
+export interface MediaPreviousValuesPromise
+  extends Promise<MediaPreviousValues>,
     Fragmentable {
-  node: <T = MediaMetaPromise>() => T;
-  cursor: () => Promise<String>;
+  id: () => Promise<ID_Output>;
+  uri: () => Promise<String>;
+  type: () => Promise<MediaType>;
 }
 
-export interface MediaMetaEdgeSubscription
-  extends Promise<AsyncIterator<MediaMetaEdge>>,
+export interface MediaPreviousValuesSubscription
+  extends Promise<AsyncIterator<MediaPreviousValues>>,
     Fragmentable {
-  node: <T = MediaMetaSubscription>() => T;
-  cursor: () => Promise<AsyncIterator<String>>;
+  id: () => Promise<AsyncIterator<ID_Output>>;
+  uri: () => Promise<AsyncIterator<String>>;
+  type: () => Promise<AsyncIterator<MediaType>>;
+}
+
+export interface AggregatePostAnswer {
+  count: Int;
+}
+
+export interface AggregatePostAnswerPromise
+  extends Promise<AggregatePostAnswer>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePostAnswerSubscription
+  extends Promise<AsyncIterator<AggregatePostAnswer>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
+}
+
+export interface PostAnswerPreviousValues {
+  id: ID_Output;
+}
+
+export interface PostAnswerPreviousValuesPromise
+  extends Promise<PostAnswerPreviousValues>,
+    Fragmentable {
+  id: () => Promise<ID_Output>;
+}
+
+export interface PostAnswerPreviousValuesSubscription
+  extends Promise<AsyncIterator<PostAnswerPreviousValues>>,
+    Fragmentable {
+  id: () => Promise<AsyncIterator<ID_Output>>;
+}
+
+export interface AggregatePost {
+  count: Int;
+}
+
+export interface AggregatePostPromise
+  extends Promise<AggregatePost>,
+    Fragmentable {
+  count: () => Promise<Int>;
+}
+
+export interface AggregatePostSubscription
+  extends Promise<AsyncIterator<AggregatePost>>,
+    Fragmentable {
+  count: () => Promise<AsyncIterator<Int>>;
 }
 
 export interface MediaMetaSubscriptionPayload {
@@ -1192,36 +1451,43 @@ export interface MediaMetaSubscriptionPayloadSubscription
   previousValues: <T = MediaMetaPreviousValuesSubscription>() => T;
 }
 
-export interface AggregatePostAnswer {
-  count: Int;
+export interface MediaMetaEdge {
+  node: MediaMeta;
+  cursor: String;
 }
 
-export interface AggregatePostAnswerPromise
-  extends Promise<AggregatePostAnswer>,
+export interface MediaMetaEdgePromise
+  extends Promise<MediaMetaEdge>,
     Fragmentable {
-  count: () => Promise<Int>;
+  node: <T = MediaMetaPromise>() => T;
+  cursor: () => Promise<String>;
 }
 
-export interface AggregatePostAnswerSubscription
-  extends Promise<AsyncIterator<AggregatePostAnswer>>,
+export interface MediaMetaEdgeSubscription
+  extends Promise<AsyncIterator<MediaMetaEdge>>,
     Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
+  node: <T = MediaMetaSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
 }
 
-export interface AggregatePost {
-  count: Int;
+export interface MediaMeta {
+  id: ID_Output;
 }
 
-export interface AggregatePostPromise
-  extends Promise<AggregatePost>,
+export interface MediaMetaPromise extends Promise<MediaMeta>, Fragmentable {
+  id: () => Promise<ID_Output>;
+}
+
+export interface MediaMetaSubscription
+  extends Promise<AsyncIterator<MediaMeta>>,
     Fragmentable {
-  count: () => Promise<Int>;
+  id: () => Promise<AsyncIterator<ID_Output>>;
 }
 
-export interface AggregatePostSubscription
-  extends Promise<AsyncIterator<AggregatePost>>,
+export interface MediaMetaNullablePromise
+  extends Promise<MediaMeta | null>,
     Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
+  id: () => Promise<ID_Output>;
 }
 
 export interface PostPreviousValues {
@@ -1274,20 +1540,29 @@ export interface PostSubscriptionPayloadSubscription
   previousValues: <T = PostPreviousValuesSubscription>() => T;
 }
 
-export interface PostAnswerPreviousValues {
-  id: ID_Output;
+export interface PostAnswerSubscriptionPayload {
+  mutation: MutationType;
+  node: PostAnswer;
+  updatedFields: String[];
+  previousValues: PostAnswerPreviousValues;
 }
 
-export interface PostAnswerPreviousValuesPromise
-  extends Promise<PostAnswerPreviousValues>,
+export interface PostAnswerSubscriptionPayloadPromise
+  extends Promise<PostAnswerSubscriptionPayload>,
     Fragmentable {
-  id: () => Promise<ID_Output>;
+  mutation: () => Promise<MutationType>;
+  node: <T = PostAnswerPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = PostAnswerPreviousValuesPromise>() => T;
 }
 
-export interface PostAnswerPreviousValuesSubscription
-  extends Promise<AsyncIterator<PostAnswerPreviousValues>>,
+export interface PostAnswerSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<PostAnswerSubscriptionPayload>>,
     Fragmentable {
-  id: () => Promise<AsyncIterator<ID_Output>>;
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = PostAnswerSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = PostAnswerPreviousValuesSubscription>() => T;
 }
 
 export interface MediaMetaPreviousValues {
@@ -1304,6 +1579,48 @@ export interface MediaMetaPreviousValuesSubscription
   extends Promise<AsyncIterator<MediaMetaPreviousValues>>,
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
+}
+
+export interface MediaEdge {
+  node: Media;
+  cursor: String;
+}
+
+export interface MediaEdgePromise extends Promise<MediaEdge>, Fragmentable {
+  node: <T = MediaPromise>() => T;
+  cursor: () => Promise<String>;
+}
+
+export interface MediaEdgeSubscription
+  extends Promise<AsyncIterator<MediaEdge>>,
+    Fragmentable {
+  node: <T = MediaSubscription>() => T;
+  cursor: () => Promise<AsyncIterator<String>>;
+}
+
+export interface UserSubscriptionPayload {
+  mutation: MutationType;
+  node: User;
+  updatedFields: String[];
+  previousValues: UserPreviousValues;
+}
+
+export interface UserSubscriptionPayloadPromise
+  extends Promise<UserSubscriptionPayload>,
+    Fragmentable {
+  mutation: () => Promise<MutationType>;
+  node: <T = UserPromise>() => T;
+  updatedFields: () => Promise<String[]>;
+  previousValues: <T = UserPreviousValuesPromise>() => T;
+}
+
+export interface UserSubscriptionPayloadSubscription
+  extends Promise<AsyncIterator<UserSubscriptionPayload>>,
+    Fragmentable {
+  mutation: () => Promise<AsyncIterator<MutationType>>;
+  node: <T = UserSubscription>() => T;
+  updatedFields: () => Promise<AsyncIterator<String[]>>;
+  previousValues: <T = UserPreviousValuesSubscription>() => T;
 }
 
 export interface PostConnection {
@@ -1365,54 +1682,23 @@ export interface UserEdgeSubscription
   cursor: () => Promise<AsyncIterator<String>>;
 }
 
-export interface AggregateMediaMeta {
-  count: Int;
-}
-
-export interface AggregateMediaMetaPromise
-  extends Promise<AggregateMediaMeta>,
-    Fragmentable {
-  count: () => Promise<Int>;
-}
-
-export interface AggregateMediaMetaSubscription
-  extends Promise<AsyncIterator<AggregateMediaMeta>>,
-    Fragmentable {
-  count: () => Promise<AsyncIterator<Int>>;
-}
-
-export interface UserSubscriptionPayload {
-  mutation: MutationType;
-  node: User;
-  updatedFields: String[];
-  previousValues: UserPreviousValues;
-}
-
-export interface UserSubscriptionPayloadPromise
-  extends Promise<UserSubscriptionPayload>,
-    Fragmentable {
-  mutation: () => Promise<MutationType>;
-  node: <T = UserPromise>() => T;
-  updatedFields: () => Promise<String[]>;
-  previousValues: <T = UserPreviousValuesPromise>() => T;
-}
-
-export interface UserSubscriptionPayloadSubscription
-  extends Promise<AsyncIterator<UserSubscriptionPayload>>,
-    Fragmentable {
-  mutation: () => Promise<AsyncIterator<MutationType>>;
-  node: <T = UserSubscription>() => T;
-  updatedFields: () => Promise<AsyncIterator<String[]>>;
-  previousValues: <T = UserPreviousValuesSubscription>() => T;
-}
-
-export type Long = string;
+/*
+The `Boolean` scalar type represents `true` or `false`.
+*/
+export type Boolean = boolean;
 
 /*
 The `ID` scalar type represents a unique identifier, often used to refetch an object or as key for a cache. The ID type appears in a JSON response as a String; however, it is not intended to be human-readable. When expected as an input type, any string (such as `"4"`) or integer (such as `4`) input value will be accepted as an ID.
 */
 export type ID_Input = string | number;
 export type ID_Output = string;
+
+export type Long = string;
+
+/*
+The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. 
+*/
+export type Int = number;
 
 /*
 DateTime scalar input type, allowing Date
@@ -1423,16 +1709,6 @@ export type DateTimeInput = Date | string;
 DateTime scalar output type, which is always a string
 */
 export type DateTimeOutput = string;
-
-/*
-The `Boolean` scalar type represents `true` or `false`.
-*/
-export type Boolean = boolean;
-
-/*
-The `Int` scalar type represents non-fractional signed whole numeric values. Int can represent values between -(2^31) and 2^31 - 1. 
-*/
-export type Int = number;
 
 /*
 The `String` scalar type represents textual data, represented as UTF-8 character sequences. The String type is most often used by GraphQL to represent free-form human-readable text.
@@ -1454,6 +1730,10 @@ export const models: Model[] = [
   },
   {
     name: "Media",
+    embedded: false
+  },
+  {
+    name: "Like",
     embedded: false
   },
   {
