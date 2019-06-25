@@ -142,6 +142,7 @@ scalar Long
 type Media {
   id: ID!
   uri: String
+  owner: User!
   type: MediaType
 }
 
@@ -154,6 +155,7 @@ type MediaConnection {
 input MediaCreateInput {
   id: ID
   uri: String
+  owner: UserCreateOneInput!
   type: MediaType
 }
 
@@ -278,11 +280,13 @@ enum MediaType {
 
 input MediaUpdateDataInput {
   uri: String
+  owner: UserUpdateOneRequiredInput
   type: MediaType
 }
 
 input MediaUpdateInput {
   uri: String
+  owner: UserUpdateOneRequiredInput
   type: MediaType
 }
 
@@ -332,6 +336,7 @@ input MediaWhereInput {
   uri_not_starts_with: String
   uri_ends_with: String
   uri_not_ends_with: String
+  owner: UserWhereInput
   type: MediaType
   type_not: MediaType
   type_in: [MediaType!]

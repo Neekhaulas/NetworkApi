@@ -465,6 +465,7 @@ export interface UserWhereInput {
 
 export interface MediaUpdateDataInput {
   uri?: Maybe<String>;
+  owner?: Maybe<UserUpdateOneRequiredInput>;
   type?: Maybe<MediaType>;
 }
 
@@ -672,6 +673,7 @@ export interface PostUpdateDataInput {
 
 export interface MediaUpdateInput {
   uri?: Maybe<String>;
+  owner?: Maybe<UserUpdateOneRequiredInput>;
   type?: Maybe<MediaType>;
 }
 
@@ -736,6 +738,7 @@ export interface PostUpdateManyMutationInput {
 export interface MediaCreateInput {
   id?: Maybe<ID_Input>;
   uri?: Maybe<String>;
+  owner: UserCreateOneInput;
   type?: Maybe<MediaType>;
 }
 
@@ -822,6 +825,7 @@ export interface MediaWhereInput {
   uri_not_starts_with?: Maybe<String>;
   uri_ends_with?: Maybe<String>;
   uri_not_ends_with?: Maybe<String>;
+  owner?: Maybe<UserWhereInput>;
   type?: Maybe<MediaType>;
   type_not?: Maybe<MediaType>;
   type_in?: Maybe<MediaType[] | MediaType>;
@@ -1135,6 +1139,7 @@ export interface Media {
 export interface MediaPromise extends Promise<Media>, Fragmentable {
   id: () => Promise<ID_Output>;
   uri: () => Promise<String>;
+  owner: <T = UserPromise>() => T;
   type: () => Promise<MediaType>;
 }
 
@@ -1143,6 +1148,7 @@ export interface MediaSubscription
     Fragmentable {
   id: () => Promise<AsyncIterator<ID_Output>>;
   uri: () => Promise<AsyncIterator<String>>;
+  owner: <T = UserSubscription>() => T;
   type: () => Promise<AsyncIterator<MediaType>>;
 }
 
@@ -1151,6 +1157,7 @@ export interface MediaNullablePromise
     Fragmentable {
   id: () => Promise<ID_Output>;
   uri: () => Promise<String>;
+  owner: <T = UserPromise>() => T;
   type: () => Promise<MediaType>;
 }
 

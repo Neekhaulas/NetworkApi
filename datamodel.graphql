@@ -19,6 +19,7 @@ type Post {
 type Media {
 	id: ID! @id
 	uri: String
+	owner: User!
 	type: MediaType
 }
 

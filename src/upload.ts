@@ -1,12 +1,13 @@
-import multiparty from "multiparty";
-import {v1} from "uuid";
-import {request} from "graphql-request";
+import { Form } from "multiparty";
+import { v1 } from "uuid";
+import { request } from "graphql-request";
 import ffmpeg from "fluent-ffmpeg";
 import mkdirp from "mkdirp";
 import fs from "fs";
 import rimraf from "rimraf";
+import { prisma, MediaCreateInput } from "./generated/prisma-client";
 
-const endpoint = 'http://localhost:8080';
+const endpoint = 'http://localhost:9090/';
 const query = `
 mutation Upload($userId: ID!, $uuid: String!, $type: MediaType!) {
   uploadMedia(userId: $userId, uuid: $uuid, type: $type) {
@@ -29,31 +30,40 @@ const publicDir = './public';
 
 export default function onUpload(req: any, res: any) {
     console.log('upload');
-    var form = new multiparty.Form();
+    var form = new Form();
 
-    form.parse(req, function(err, fields, files) {
-      //console.log(fields);
-      switch(fields.method[0]) {
-        case 'INIT':
-          var uuid = v1();
-          request(endpoint, query, {
-            userId: 0,
-            uuid: uuid,
-            type: "video"
-          }).then(data => {
-            res.set("Content-Type", "application/json");
-            res.send({
-              "uuid": uuid,
-              "id": data.uploadMedia.id
-            });
-          });
-        break;
-        case 'SEND':
-          // text/plain is required to ensure support for IE9 and older
-          res.set("Content-Type", "text/plain");
-          onChunkedUpload(fields, files[fileInputName][0], res);
-        break;
-      }
+    form.parse(req, async function (err, fields, files) {
+        console.log(fields);
+        console.log(req.session);
+        switch (fields.method[0]) {
+            case 'INIT':
+                var uuid = v1();
+                var test : MediaCreateInput = {
+                    owner: {
+                        connect: { id: req.session.user }
+                    }
+                }
+                let aaa = await prisma.createMedia(test);
+                console.log(aaa);
+                res.send('ok');
+                /*request(endpoint, query, {
+                    userId: 0,
+                    uuid: uuid,
+                    type: "video"
+                }).then(data => {
+                    res.set("Content-Type", "application/json");
+                    res.send({
+                        "uuid": uuid,
+                        "id": data.uploadMedia.id
+                    });
+                });*/
+                break;
+            case 'SEND':
+                // text/plain is required to ensure support for IE9 and older
+                res.set("Content-Type", "text/plain");
+                onChunkedUpload(fields, files[fileInputName][0], res);
+                break;
+        }
     });
 }
 
@@ -71,47 +81,47 @@ function onChunkedUpload(fields: any, file: any, res: any) {
     file.name = fields.qqfilename;
 
     if (isValid(size)) {
-        storeChunk(file, uuid, index, totalParts, function() {
+        storeChunk(file, uuid, index, totalParts, function () {
             if (index < totalParts - 1) {
                 responseData.success = true;
                 res.send(responseData);
             }
             else {
-                combineChunks(file, uuid, function(fileDestination: any) {
-                        responseData.success = true;
-                        res.send(responseData);
-                        request(endpoint, endUpload, {
-                            mediaId: parseInt(fields.mediaId),
-                            uri: uuid[0]
-                        });
-                        var duration = new Date().getTime();
-                        ffmpeg.ffprobe(fileDestination, function(err, metadata) {
-                            ffmpeg(fileDestination)
-                                .size('?x480')
-                                .videoCodec('libx264')
-                                .audioCodec('aac')
-                                .videoBitrate('2500k')
-                                .aspect(metadata.streams[0].width / metadata.streams[0].height)
-                                .duration(30)
-                                .output(fileDestination + '480p.mp4')
-                                .on('end', (res) => {
-                                    console.log((new Date().getTime() - duration) / 1000);
-                                })
-                                .run();
-                        });
-                            
-                        console.log(fileDestination);
-                    },
-                    function() {
+                combineChunks(file, uuid, function (fileDestination: any) {
+                    responseData.success = true;
+                    res.send(responseData);
+                    request(endpoint, endUpload, {
+                        mediaId: parseInt(fields.mediaId),
+                        uri: uuid[0]
+                    });
+                    var duration = new Date().getTime();
+                    ffmpeg.ffprobe(fileDestination, function (err, metadata) {
+                        ffmpeg(fileDestination)
+                            .size('?x480')
+                            .videoCodec('libx264')
+                            .audioCodec('aac')
+                            .videoBitrate('2500k')
+                            .aspect(metadata.streams[0].width / metadata.streams[0].height)
+                            .duration(30)
+                            .output(fileDestination + '480p.mp4')
+                            .on('end', (res) => {
+                                console.log((new Date().getTime() - duration) / 1000);
+                            })
+                            .run();
+                    });
+
+                    console.log(fileDestination);
+                },
+                    function () {
                         responseData.error = "Problem conbining the chunks!";
                         res.send(responseData);
                     });
             }
         },
-        function(reset: any) {
-            responseData.error = "Problem storing the chunk!";
-            res.send(responseData);
-        });
+            function (reset: any) {
+                responseData.error = "Problem storing the chunk!";
+                res.send(responseData);
+            });
     }
     else {
         failWithTooBigFile(responseData, res);
@@ -129,9 +139,9 @@ function isValid(size: any) {
 }
 
 function moveFile(destinationDir: any, sourceFile: any, destinationFile: any, success: any, failure: any) {
-    mkdirp(destinationDir, function(error: any) {
-        let sourceStream : any;
-        let destStream : any;
+    mkdirp(destinationDir, function (error: any) {
+        let sourceStream: any;
+        let destStream: any;
 
         if (error) {
             console.error("Problem creating directory " + destinationDir + ": " + error);
@@ -142,12 +152,12 @@ function moveFile(destinationDir: any, sourceFile: any, destinationFile: any, su
             destStream = fs.createWriteStream(destinationFile);
 
             sourceStream
-                .on("error", function(error : any) {
+                .on("error", function (error: any) {
                     console.error("Problem copying file: " + error.stack);
                     destStream.end();
                     failure();
                 })
-                .on("end", function(){
+                .on("end", function () {
                     destStream.end();
                     success();
                 })
@@ -177,7 +187,7 @@ function combineChunks(file: any, uuid: any, success: any, failure: any) {
         fileDestination = publicDir + "/" + uuid;
 
 
-    fs.readdir(chunksDir, function(err, fileNames) {
+    fs.readdir(chunksDir, function (err, fileNames) {
         var destFileStream;
 
         if (err) {
@@ -186,17 +196,17 @@ function combineChunks(file: any, uuid: any, success: any, failure: any) {
         }
         else {
             fileNames.sort();
-            destFileStream = fs.createWriteStream(fileDestination, {flags: "a"});
+            destFileStream = fs.createWriteStream(fileDestination, { flags: "a" });
 
-            appendToStream(destFileStream, chunksDir, fileNames, 0, function() {
-                rimraf(destinationDir, function(rimrafError) {
+            appendToStream(destFileStream, chunksDir, fileNames, 0, function () {
+                rimraf(destinationDir, function (rimrafError) {
                     if (rimrafError) {
                         console.log("Problem deleting chunks dir! " + rimrafError);
                     }
                 });
                 success(fileDestination);
             },
-            failure);
+                failure);
         }
     });
 }
@@ -204,15 +214,15 @@ function combineChunks(file: any, uuid: any, success: any, failure: any) {
 function appendToStream(destStream: any, srcDir: any, srcFilesnames: any, index: any, success: any, failure: any) {
     if (index < srcFilesnames.length) {
         fs.createReadStream(srcDir + srcFilesnames[index])
-            .on("end", function() {
+            .on("end", function () {
                 appendToStream(destStream, srcDir, srcFilesnames, index + 1, success, failure);
             })
-            .on("error", function(error) {
+            .on("error", function (error) {
                 console.error("Problem appending chunk! " + error);
                 destStream.end();
                 failure();
             })
-            .pipe(destStream, {end: false});
+            .pipe(destStream, { end: false });
     }
     else {
         destStream.end();
