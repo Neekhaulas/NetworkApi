@@ -1,4 +1,5 @@
 import { IResolvers } from "graphql-tools";
+import { Prisma } from "./generated/prisma-client";
 
 const resolversMap : IResolvers = {
     Query: {
@@ -7,6 +8,7 @@ const resolversMap : IResolvers = {
         },
         async posts(_: any, args: any, ctx: any) {
             args.first = Math.min(20, args.first?args.first:20);
+            args.orderBy = 'createdAt_DESC';
             const fragment = `
             fragment PostWithUser on Post {
                 id
@@ -87,6 +89,16 @@ const resolversMap : IResolvers = {
             return {
                 success: true
             };
+        },
+        async post(_: any, args: any, ctx: {prisma: Prisma, req: any}) {
+            let post = await ctx.prisma.createPost({
+                content: args.content,
+                user: { connect: {id: ctx.req.session.user}},
+                media: { connect: { id: args.media}}
+            });
+            return {
+                post: post
+            };
         }
     },
     Post: {
@@ -110,7 +122,6 @@ const resolversMap : IResolvers = {
                     id: ctx.req.session.user
                 }
             });
-            console.log(exists);
             return exists;
         }
     }

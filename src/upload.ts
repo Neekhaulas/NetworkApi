@@ -1,10 +1,10 @@
 import { Form } from "multiparty";
 import { v1 } from "uuid";
 import { request } from "graphql-request";
-import ffmpeg from "fluent-ffmpeg";
-import mkdirp from "mkdirp";
-import fs from "fs";
-import rimraf from "rimraf";
+import * as ffmpeg from "fluent-ffmpeg";
+import * as mkdirp from "mkdirp";
+import * as fs from "fs";
+import * as rimraf from "rimraf";
 import { prisma, MediaCreateInput } from "./generated/prisma-client";
 
 const endpoint = 'http://localhost:9090/';
@@ -30,33 +30,23 @@ const publicDir = './public';
 
 export default function onUpload(req: any, res: any) {
     console.log('upload');
+    console.log(req.session);
     var form = new Form();
 
     form.parse(req, async function (err, fields, files) {
-        console.log(fields);
-        console.log(req.session);
         switch (fields.method[0]) {
             case 'INIT':
                 var uuid = v1();
-                var test : MediaCreateInput = {
+                let newMedia = await prisma.createMedia({
                     owner: {
                         connect: { id: req.session.user }
-                    }
-                }
-                let aaa = await prisma.createMedia(test);
-                console.log(aaa);
-                res.send('ok');
-                /*request(endpoint, query, {
-                    userId: 0,
-                    uuid: uuid,
-                    type: "video"
-                }).then(data => {
-                    res.set("Content-Type", "application/json");
-                    res.send({
-                        "uuid": uuid,
-                        "id": data.uploadMedia.id
-                    });
-                });*/
+                    },
+                });
+                res.set("Content-Type", "application/json");
+                res.send({
+                    "uuid": uuid,
+                    "id": newMedia
+                });
                 break;
             case 'SEND':
                 // text/plain is required to ensure support for IE9 and older
@@ -87,12 +77,17 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                 res.send(responseData);
             }
             else {
-                combineChunks(file, uuid, function (fileDestination: any) {
+                combineChunks(file, uuid, async function (fileDestination: any) {
                     responseData.success = true;
                     res.send(responseData);
-                    request(endpoint, endUpload, {
-                        mediaId: parseInt(fields.mediaId),
-                        uri: uuid[0]
+                    console.log(fields);
+                    await prisma.updateMedia({
+                        data: {
+                            uri: uuid[0]
+                        },
+                        where: {
+                            id: fields.mediaId[0]
+                        }
                     });
                     var duration = new Date().getTime();
                     ffmpeg.ffprobe(fileDestination, function (err, metadata) {
@@ -109,8 +104,6 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                             })
                             .run();
                     });
-
-                    console.log(fileDestination);
                 },
                     function () {
                         responseData.error = "Problem conbining the chunks!";

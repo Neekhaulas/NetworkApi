@@ -8,17 +8,23 @@ import * as session from "express-session";
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
 import onUpload from "./upload";
+import cors = require("cors");
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = "./public";
 
 const app = express();
 
+app.use(cors({
+  origin: 'http://localhost:9090',
+  credentials: true
+}));
+
 app.use(express.static(PUBLIC_DIR));
 
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }, resave: true, saveUninitialized: true}));
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000000 }, resave: true, saveUninitialized: true}));
 
-app.post("/upload", onUpload);
+app.all("/upload", onUpload);
 
 const apolloServer = new ApolloServer({
   typeDefs,
@@ -40,7 +46,7 @@ const apolloServer = new ApolloServer({
 apolloServer.applyMiddleware({ app, cors: {
   allowedHeaders: "Content-Type, Authorization",
   credentials: true,
-  methods: "GET, POST, PUT, DELETE",
+  methods: "GET, POST, PUT, DELETE, OPTIONS",
   origin: "http://localhost:9090"
 } });
 

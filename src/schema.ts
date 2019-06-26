@@ -57,7 +57,7 @@ const schema = gql`
         logout: Boolean!
         like(post: ID!): Boolean!
         uploadMedia(userId: ID!, uuid: String!, type: MediaType!): MediaMeta!
-        post(content: String!, media: [ID]!): PostAnswer!
+        post(content: String!, media: ID!): PostAnswer!
         setMediaUrl(mediaId: ID!, uri: String!): MediaMeta!
     }
 `;
