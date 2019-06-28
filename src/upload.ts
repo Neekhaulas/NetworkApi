@@ -29,8 +29,6 @@ const chunkDirName = "chunks";
 const publicDir = './public';
 
 export default function onUpload(req: any, res: any) {
-    console.log('upload');
-    console.log(req.session);
     var form = new Form();
 
     form.parse(req, async function (err, fields, files) {
@@ -91,12 +89,17 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                     });
                     var duration = new Date().getTime();
                     ffmpeg.ffprobe(fileDestination, function (err, metadata) {
+                        var width = metadata.streams[0].width?metadata.streams[0].width:metadata.streams[1].width;
+                        var height = metadata.streams[0].height?metadata.streams[0].height:metadata.streams[1].height;
+                        console.log(width / height);
                         ffmpeg(fileDestination)
                             .size('?x480')
                             .videoCodec('libx264')
                             .audioCodec('aac')
-                            .videoBitrate('2500k')
-                            .aspect(metadata.streams[0].width / metadata.streams[0].height)
+                            .videoBitrate('1000k')
+                            .audioBitrate(128)
+                            .fps(29.7)
+                            .aspect(width / height)
                             .duration(30)
                             .output(fileDestination + '480p.mp4')
                             .on('end', (res) => {
