@@ -78,7 +78,6 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                 combineChunks(file, uuid, async function (fileDestination: any) {
                     responseData.success = true;
                     res.send(responseData);
-                    console.log(fields);
                     await prisma.updateMedia({
                         data: {
                             uri: uuid[0]
@@ -91,7 +90,6 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                     ffmpeg.ffprobe(fileDestination, function (err, metadata) {
                         var width = metadata.streams[0].width?metadata.streams[0].width:metadata.streams[1].width;
                         var height = metadata.streams[0].height?metadata.streams[0].height:metadata.streams[1].height;
-                        console.log(width / height);
                         ffmpeg(fileDestination)
                             .size('?x480')
                             .videoCodec('libx264')
