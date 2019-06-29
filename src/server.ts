@@ -1,9 +1,9 @@
 import * as express from "express";
-//import * as fs from "fs";
-import { createServer } from "http";
+import * as fs from "fs";
 import { ApolloServer } from "apollo-server-express";
 import { prisma } from "./generated/prisma-client";
 import * as session from "express-session";
+import {key, cert, origin} from '../config';
 
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
@@ -16,7 +16,7 @@ const PUBLIC_DIR = "./public";
 const app = express();
 
 app.use(cors({
-  origin: 'http://localhost:9090',
+  origin: origin,
   credentials: true
 }));
 
@@ -47,14 +47,14 @@ apolloServer.applyMiddleware({ app, cors: {
   allowedHeaders: "Content-Type, Authorization",
   credentials: true,
   methods: "GET, POST, PUT, DELETE, OPTIONS",
-  origin: "http://localhost:9090"
+  origin: origin
 } });
 
-const httpServer = createServer(
-  /*{
-    key: fs.readFileSync(`server.key`),
-    cert: fs.readFileSync(`server.cert`)
-  },*/
+const ssl = process.env.NODE_ENV === 'development' ? {} : {key: fs.readFileSync(key), cert: fs.readFileSync(cert)}
+const http = process.env.NODE_ENV === 'development' ? require('http') : require('https');
+
+const httpServer = http.createServer(
+  ssl,
   app
 );
 

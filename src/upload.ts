@@ -1,28 +1,12 @@
 import { Form } from "multiparty";
 import { v1 } from "uuid";
-import { request } from "graphql-request";
 import * as ffmpeg from "fluent-ffmpeg";
 import * as mkdirp from "mkdirp";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
-import { prisma, MediaCreateInput } from "./generated/prisma-client";
+import { prisma } from "./generated/prisma-client";
 import { sendToS3 } from "./sendS3";
 
-const endpoint = 'http://localhost:9090/';
-const query = `
-mutation Upload($userId: ID!, $uuid: String!, $type: MediaType!) {
-  uploadMedia(userId: $userId, uuid: $uuid, type: $type) {
-    id
-  }
-}`;
-
-const endUpload = `
-mutation FinishedUpload($mediaId: ID!, $uri: String!) {
-  setMediaUrl(mediaId: $mediaId, uri: $uri) {
-    id
-  }
-}
-`;
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 const uploadedFilesPath = './upload';
@@ -160,13 +144,6 @@ function moveFile(destinationDir: any, sourceFile: any, destinationFile: any, su
                 .pipe(destStream);
         }
     });
-}
-
-function moveUploadedFile(file: any, uuid: any, success: any, failure: any) {
-    var destinationDir = uploadedFilesPath + uuid + "/",
-        fileDestination = destinationDir + file.name;
-
-    moveFile(destinationDir, file.path, fileDestination, success, failure);
 }
 
 function storeChunk(file: any, uuid: any, index: any, numChunks: any, success: any, failure: any) {
