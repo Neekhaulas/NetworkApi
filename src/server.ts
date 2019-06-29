@@ -10,7 +10,7 @@ import resolvers from "./resolvers";
 import onUpload from "./upload";
 import cors = require("cors");
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.NODE_ENV === 'development' ? 3000 : 443;
 const PUBLIC_DIR = "./public";
 
 const app = express();

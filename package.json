@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node src/server.ts",
+    "start": "ts-node src/server.ts --transpileOnly",
     "dev": "ts-node-dev --no-notify --respawn --transpileOnly src/server.ts",
     "populate": "prisma reset -f && ts-node src/fake.ts"
   },
