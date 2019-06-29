@@ -6,6 +6,7 @@ import * as mkdirp from "mkdirp";
 import * as fs from "fs";
 import * as rimraf from "rimraf";
 import { prisma, MediaCreateInput } from "./generated/prisma-client";
+import { sendToS3 } from "./sendS3";
 
 const endpoint = 'http://localhost:9090/';
 const query = `
@@ -75,7 +76,7 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                 res.send(responseData);
             }
             else {
-                combineChunks(file, uuid, async function (fileDestination: any) {
+                combineChunks(file, uuid, async function (fileDestination: any, fileName: any) {
                     responseData.success = true;
                     res.send(responseData);
                     await prisma.updateMedia({
@@ -102,6 +103,7 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                             .output(fileDestination + '480p.mp4')
                             .on('end', (res) => {
                                 console.log((new Date().getTime() - duration) / 1000);
+                                sendToS3(fileDestination + '480p.mp4', fileName + '480p.mp4');
                             })
                             .run();
                     });
@@ -198,7 +200,7 @@ function combineChunks(file: any, uuid: any, success: any, failure: any) {
                         console.log("Problem deleting chunks dir! " + rimrafError);
                     }
                 });
-                success(fileDestination);
+                success(fileDestination, uuid);
             },
                 failure);
         }
