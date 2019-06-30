@@ -1,14 +1,25 @@
 import { IResolvers } from "graphql-tools";
-import { Prisma } from "./generated/prisma-client";
+import { Prisma, Maybe } from "./generated/prisma-client";
 
 const resolversMap: IResolvers = {
     Query: {
         async users(_: any, args: void, ctx: any) {
             return ctx.prisma.users();
         },
-        async posts(_: any, args: any, ctx: any) {
-            args.first = Math.min(20, args.first ? args.first : 20);
-            args.orderBy = 'createdAt_DESC';
+        async posts(_: any, args: any, ctx: { prisma: Prisma, req: any }) {
+            let userArgs: {
+                first: number,
+                orderBy: any,
+                where?: Maybe<any>
+            } = {
+                first: Math.min(20, args.first ? args.first : 20),
+                orderBy: 'createdAt_DESC',
+            }
+            if (args.user) userArgs.where = {
+                user: {
+                    id: args.user
+                }
+            };
             const fragment = `
             fragment PostWithUser on Post {
                 id
@@ -26,7 +37,7 @@ const resolversMap: IResolvers = {
                 }
             }
             `;
-            return ctx.prisma.posts(args).$fragment(fragment);
+            return ctx.prisma.posts(userArgs).$fragment(fragment);
         },
         async user(_: void, args: any, ctx: any) {
             return ctx.prisma.user({ id: args.id });
