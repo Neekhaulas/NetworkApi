@@ -65,6 +65,6 @@ apolloServer.installSubscriptionHandlers(httpServer);
 
 httpServer.listen({ port: PORT }, () => {
   console.log(
-    `🚀 Server ready at http://localhost:${PORT}/graphql`,
+    `🚀 Server ready at https://localhost:${PORT}/graphql`,
   );
 });
