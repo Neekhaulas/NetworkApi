@@ -4,6 +4,7 @@ import { ApolloServer } from "apollo-server-express";
 import { prisma } from "./generated/prisma-client";
 import * as session from "express-session";
 import {key, cert, origin} from '../config';
+import {onUpdate} from './update';
 
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
@@ -25,6 +26,8 @@ app.use(express.static(PUBLIC_DIR));
 app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000000 }, resave: true, saveUninitialized: true}));
 
 app.all("/upload", onUpload);
+
+app.post("/update", onUpdate);
 
 const apolloServer = new ApolloServer({
   typeDefs,

@@ -3,7 +3,7 @@ import { gql } from "apollo-server-express";
 const schema = gql`
     type User {
         id: ID!
-        name: String!
+        name: String
         username: String!
         avatar: String
     }
@@ -47,7 +47,7 @@ const schema = gql`
         user(id: ID): User
         me: User
         users(first: Int, skip: Int, after: String): [User]
-        posts(first: Int, skip: Int, after: String): [Post]
+        posts(user: ID, first: Int, skip: Int, after: String): [Post]
         medias: [Media]
     }
 
