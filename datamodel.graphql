@@ -40,6 +40,14 @@ type PostAnswer {
 	post: Post
 }
 
+type Follow {
+	id: ID! @id
+	follower: User! @relation(link: INLINE, name: "Follower")
+	followed: User! @relation(link: INLINE, name: "Followed")
+	createdAt: DateTime! @createdAt
+	updatedAt: DateTime! @updatedAt
+}
+
 enum MediaType {
 	Image
 	Video

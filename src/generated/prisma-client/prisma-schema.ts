@@ -2,7 +2,11 @@
   // Please don't change this file manually but run `prisma generate` to update it.
   // For more information, please read the docs: https://www.prisma.io/docs/prisma-client/
 
-export const typeDefs = /* GraphQL */ `type AggregateLike {
+export const typeDefs = /* GraphQL */ `type AggregateFollow {
+  count: Int!
+}
+
+type AggregateLike {
   count: Int!
 }
 
@@ -31,6 +35,111 @@ type BatchPayload {
 }
 
 scalar DateTime
+
+type Follow {
+  id: ID!
+  follower: User!
+  followed: User!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type FollowConnection {
+  pageInfo: PageInfo!
+  edges: [FollowEdge]!
+  aggregate: AggregateFollow!
+}
+
+input FollowCreateInput {
+  id: ID
+  follower: UserCreateOneInput!
+  followed: UserCreateOneInput!
+}
+
+type FollowEdge {
+  node: Follow!
+  cursor: String!
+}
+
+enum FollowOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+}
+
+type FollowPreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type FollowSubscriptionPayload {
+  mutation: MutationType!
+  node: Follow
+  updatedFields: [String!]
+  previousValues: FollowPreviousValues
+}
+
+input FollowSubscriptionWhereInput {
+  mutation_in: [MutationType!]
+  updatedFields_contains: String
+  updatedFields_contains_every: [String!]
+  updatedFields_contains_some: [String!]
+  node: FollowWhereInput
+  AND: [FollowSubscriptionWhereInput!]
+  OR: [FollowSubscriptionWhereInput!]
+  NOT: [FollowSubscriptionWhereInput!]
+}
+
+input FollowUpdateInput {
+  follower: UserUpdateOneRequiredInput
+  followed: UserUpdateOneRequiredInput
+}
+
+input FollowWhereInput {
+  id: ID
+  id_not: ID
+  id_in: [ID!]
+  id_not_in: [ID!]
+  id_lt: ID
+  id_lte: ID
+  id_gt: ID
+  id_gte: ID
+  id_contains: ID
+  id_not_contains: ID
+  id_starts_with: ID
+  id_not_starts_with: ID
+  id_ends_with: ID
+  id_not_ends_with: ID
+  follower: UserWhereInput
+  followed: UserWhereInput
+  createdAt: DateTime
+  createdAt_not: DateTime
+  createdAt_in: [DateTime!]
+  createdAt_not_in: [DateTime!]
+  createdAt_lt: DateTime
+  createdAt_lte: DateTime
+  createdAt_gt: DateTime
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+  updatedAt_not: DateTime
+  updatedAt_in: [DateTime!]
+  updatedAt_not_in: [DateTime!]
+  updatedAt_lt: DateTime
+  updatedAt_lte: DateTime
+  updatedAt_gt: DateTime
+  updatedAt_gte: DateTime
+  AND: [FollowWhereInput!]
+  OR: [FollowWhereInput!]
+  NOT: [FollowWhereInput!]
+}
+
+input FollowWhereUniqueInput {
+  id: ID
+}
 
 type Like {
   id: ID!
@@ -351,6 +460,11 @@ input MediaWhereUniqueInput {
 }
 
 type Mutation {
+  createFollow(data: FollowCreateInput!): Follow!
+  updateFollow(data: FollowUpdateInput!, where: FollowWhereUniqueInput!): Follow
+  upsertFollow(where: FollowWhereUniqueInput!, create: FollowCreateInput!, update: FollowUpdateInput!): Follow!
+  deleteFollow(where: FollowWhereUniqueInput!): Follow
+  deleteManyFollows(where: FollowWhereInput): BatchPayload!
   createLike(data: LikeCreateInput!): Like!
   updateLike(data: LikeUpdateInput!, where: LikeWhereUniqueInput!): Like
   upsertLike(where: LikeWhereUniqueInput!, create: LikeCreateInput!, update: LikeUpdateInput!): Like!
@@ -640,6 +754,9 @@ input PostWhereUniqueInput {
 }
 
 type Query {
+  follow(where: FollowWhereUniqueInput!): Follow
+  follows(where: FollowWhereInput, orderBy: FollowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Follow]!
+  followsConnection(where: FollowWhereInput, orderBy: FollowOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): FollowConnection!
   like(where: LikeWhereUniqueInput!): Like
   likes(where: LikeWhereInput, orderBy: LikeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Like]!
   likesConnection(where: LikeWhereInput, orderBy: LikeOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): LikeConnection!
@@ -662,6 +779,7 @@ type Query {
 }
 
 type Subscription {
+  follow(where: FollowSubscriptionWhereInput): FollowSubscriptionPayload
   like(where: LikeSubscriptionWhereInput): LikeSubscriptionPayload
   media(where: MediaSubscriptionWhereInput): MediaSubscriptionPayload
   mediaMeta(where: MediaMetaSubscriptionWhereInput): MediaMetaSubscriptionPayload

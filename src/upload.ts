@@ -75,8 +75,9 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                     ffmpeg.ffprobe(fileDestination, function (err, metadata) {
                         var width = metadata.streams[0].width?metadata.streams[0].width:metadata.streams[1].width;
                         var height = metadata.streams[0].height?metadata.streams[0].height:metadata.streams[1].height;
+                        var renderHeight = Math.min(height, 480);
                         ffmpeg(fileDestination)
-                            .size('?x480')
+                            .size('?x'+renderHeight)
                             .videoCodec('libx264')
                             .audioCodec('aac')
                             .videoBitrate('1000k')
@@ -86,6 +87,7 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                             .duration(30)
                             .output(fileDestination + '480p.mp4')
                             .on('end', (res) => {
+                                console.log(res);
                                 console.log((new Date().getTime() - duration) / 1000);
                                 sendToS3(fileDestination + '480p.mp4', fileName + '480p.mp4');
                             })

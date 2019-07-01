@@ -90,6 +90,29 @@ const resolversMap: IResolvers = {
             });
             return true;
         },
+        async follow(_: any, args: any, ctx: any) {
+            if (!ctx.req.session.user) {
+                throw new Error('Not authorized');
+            }
+            const exists: boolean = await ctx.prisma.$exists.follow({
+                followed: {
+                    id: args.user
+                },
+                follower: {
+                    id: ctx.req.session.user
+                }
+            });
+            if (exists) return false;
+            await ctx.prisma.createFollow({
+                followed: {
+                    connect: { id: args.user }
+                },
+                follower: {
+                    connect: { id: ctx.req.session.user }
+                }
+            });
+            return true;
+        },
         async signup(_: any, args: any, ctx: any) {
             let user = await ctx.prisma.createUser({
                 email: args.email,
@@ -134,6 +157,16 @@ const resolversMap: IResolvers = {
                 }
             });
             return exists;
+        }
+    },
+    User: {
+        async followers(parent: any, args: any, ctx: {prisma: Prisma, req: any}) {
+            const count: number = await ctx.prisma.followsConnection({
+                where: {
+                    followed: { id: parent.id }
+                }
+            }).aggregate().count();
+            return count;
         }
     }
 };

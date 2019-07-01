@@ -6,6 +6,7 @@ const schema = gql`
         name: String
         username: String!
         avatar: String
+        followers: Int
     }
 
     type AuthPayload {
@@ -59,6 +60,7 @@ const schema = gql`
         uploadMedia(userId: ID!, uuid: String!, type: MediaType!): MediaMeta!
         post(content: String!, media: ID!): PostAnswer!
         setMediaUrl(mediaId: ID!, uri: String!): MediaMeta!
+        follow(user: ID!): Boolean!
     }
 `;
 
