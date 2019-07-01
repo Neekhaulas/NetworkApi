@@ -9,7 +9,7 @@
     "populate": "prisma reset -f && ts-node src/fake.ts"
   },
   "devDependencies": {
-    "ts-node": "^8.2.0",
+    "ts-node": "^8.3.0",
     "tslint": "^5.18.0",
     "typescript": "^3.5.1"
   },
