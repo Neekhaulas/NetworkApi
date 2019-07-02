@@ -86,12 +86,30 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                             .aspect(width / height)
                             .duration(30)
                             .output(fileDestination + '480p.mp4')
+                            .on('error', function(err) {
+                                console.log('An error occurred: ' + err.message);
+                            })
                             .on('end', (res) => {
                                 console.log(res);
                                 console.log((new Date().getTime() - duration) / 1000);
                                 sendToS3(fileDestination + '480p.mp4', fileName + '480p.mp4');
                             })
                             .run();
+
+                        ffmpeg(fileDestination)
+                            .on('filenames', function(filenames) {
+                                console.log('Will generate ' + filenames.join(', '))
+                            })
+                            .on('end', function() {
+                                console.log('Screenshots taken');
+                                sendToS3(fileDestination + '.png', fileName + '.png');
+                            })
+                            .screenshots({
+                                timestamps: [0],
+                                folder: publicDir,
+                                filename: fileName + '.png',
+                                size: '?x' + renderHeight
+                            });
                     });
                 },
                     function () {
