@@ -15,7 +15,7 @@ import cors = require("cors");
 const PORT = process.env.NODE_ENV === 'development' ? 3000 : 443;
 const PUBLIC_DIR = "./public";
 
-const c = new StatsD('api.neekhaulas.eu', 443);
+const c = new StatsD('localhost', 8125);
 const app = express();
 
 app.use(cors({

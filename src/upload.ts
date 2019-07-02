@@ -13,7 +13,7 @@ const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 const uploadedFilesPath = './upload';
 const chunkDirName = "chunks";
 const publicDir = './public';
-const c = new StatsD('api.neekhaulas.eu', 443);
+const c = new StatsD('localhost', 8125);
 
 export default function onUpload(req: any, res: any) {
     var form = new Form();
