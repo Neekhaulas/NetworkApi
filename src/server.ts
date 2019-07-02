@@ -3,8 +3,9 @@ import * as fs from "fs";
 import { ApolloServer } from "apollo-server-express";
 import { prisma } from "./generated/prisma-client";
 import * as session from "express-session";
-import {key, cert, origin} from '../config';
-import {onUpdate} from './update';
+import { StatsD } from 'node-dogstatsd';
+import { key, cert, origin } from '../config';
+import { onUpdate } from './update';
 
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
@@ -14,6 +15,7 @@ import cors = require("cors");
 const PORT = process.env.NODE_ENV === 'development' ? 3000 : 443;
 const PUBLIC_DIR = "./public";
 
+const c = new StatsD('api.neekhaulas.eu', 443);
 const app = express();
 
 app.use(cors({
@@ -23,11 +25,16 @@ app.use(cors({
 
 app.use(express.static(PUBLIC_DIR));
 
-app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000000 }, resave: true, saveUninitialized: true}));
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000000 }, resave: true, saveUninitialized: true }));
 
 app.all("/upload", onUpload);
 
 app.post("/update", onUpdate);
+
+app.all("/graphql", function (req: any, res: any, next: any) {
+  c.increment('api.requests');
+  next();
+});
 
 const apolloServer = new ApolloServer({
   typeDefs,
@@ -46,14 +53,16 @@ const apolloServer = new ApolloServer({
   }
 });
 
-apolloServer.applyMiddleware({ app, cors: {
-  allowedHeaders: "Content-Type, Authorization",
-  credentials: true,
-  methods: "GET, POST, PUT, DELETE, OPTIONS",
-  origin: origin
-} });
+apolloServer.applyMiddleware({
+  app, cors: {
+    allowedHeaders: "Content-Type, Authorization",
+    credentials: true,
+    methods: "GET, POST, PUT, DELETE, OPTIONS",
+    origin: origin
+  }
+});
 
-const ssl = process.env.NODE_ENV === 'development' ? {} : {key: fs.readFileSync(key), cert: fs.readFileSync(cert)}
+const ssl = process.env.NODE_ENV === 'development' ? {} : { key: fs.readFileSync(key), cert: fs.readFileSync(cert) }
 const http = process.env.NODE_ENV === 'development' ? require('http') : require('https');
 
 const httpServer = http.createServer(

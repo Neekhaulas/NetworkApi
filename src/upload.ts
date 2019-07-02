@@ -6,12 +6,14 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import { prisma } from "./generated/prisma-client";
 import { sendToS3 } from "./sendS3";
+import { StatsD } from 'node-dogstatsd';
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 const uploadedFilesPath = './upload';
 const chunkDirName = "chunks";
 const publicDir = './public';
+const c = new StatsD('api.neekhaulas.eu', 443);
 
 export default function onUpload(req: any, res: any) {
     var form = new Form();
@@ -90,7 +92,7 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                                 console.log('An error occurred: ' + err.message);
                             })
                             .on('end', (res) => {
-                                console.log(res);
+                                c.timing('api.upload.convert.time', (new Date().getTime() - duration));
                                 console.log((new Date().getTime() - duration) / 1000);
                                 sendToS3(fileDestination + '480p.mp4', fileName + '480p.mp4');
                             })
