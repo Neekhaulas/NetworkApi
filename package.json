@@ -29,7 +29,7 @@
     "@types/uuid": "^3.4.4",
     "apollo-server": "^2.6.1",
     "apollo-server-express": "^2.6.7",
-    "aws-sdk": "^2.485.0",
+    "aws-sdk": "^2.486.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
     "express-session": "1.16.2",
