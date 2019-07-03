@@ -6,14 +6,13 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import { prisma } from "./generated/prisma-client";
 import { sendToS3 } from "./sendS3";
-import { StatsD } from 'node-dogstatsd';
+import * as amqp from 'amqplib';
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited
 const uploadedFilesPath = './upload';
 const chunkDirName = "chunks";
 const publicDir = './public';
-const c = new StatsD('localhost', 8125);
 
 export default function onUpload(req: any, res: any) {
     var form = new Form();
@@ -75,11 +74,11 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                     });
                     var duration = new Date().getTime();
                     ffmpeg.ffprobe(fileDestination, function (err, metadata) {
-                        var width = metadata.streams[0].width?metadata.streams[0].width:metadata.streams[1].width;
-                        var height = metadata.streams[0].height?metadata.streams[0].height:metadata.streams[1].height;
+                        var width = metadata.streams[0].width ? metadata.streams[0].width : metadata.streams[1].width;
+                        var height = metadata.streams[0].height ? metadata.streams[0].height : metadata.streams[1].height;
                         var renderHeight = Math.min(height, 480);
                         ffmpeg(fileDestination)
-                            .size('?x'+renderHeight)
+                            .size('?x' + renderHeight)
                             .videoCodec('libx264')
                             .audioCodec('aac')
                             .videoBitrate('1000k')
@@ -88,21 +87,20 @@ function onChunkedUpload(fields: any, file: any, res: any) {
                             .aspect(width / height)
                             .duration(30)
                             .output(fileDestination + '480p.mp4')
-                            .on('error', function(err) {
+                            .on('error', function (err) {
                                 console.log('An error occurred: ' + err.message);
                             })
                             .on('end', (res) => {
-                                c.timing('api.upload.convert.time', (new Date().getTime() - duration));
                                 console.log((new Date().getTime() - duration) / 1000);
                                 sendToS3(fileDestination + '480p.mp4', fileName + '480p.mp4');
                             })
                             .run();
 
                         ffmpeg(fileDestination)
-                            .on('filenames', function(filenames) {
+                            .on('filenames', function (filenames) {
                                 console.log('Will generate ' + filenames.join(', '))
                             })
-                            .on('end', function() {
+                            .on('end', function () {
                                 console.log('Screenshots taken');
                                 sendToS3(fileDestination + '.png', fileName + '.png');
                             })

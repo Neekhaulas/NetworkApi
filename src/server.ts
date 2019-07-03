@@ -3,7 +3,6 @@ import * as fs from "fs";
 import { ApolloServer } from "apollo-server-express";
 import { prisma } from "./generated/prisma-client";
 import * as session from "express-session";
-import { StatsD } from 'node-dogstatsd';
 import { key, cert, origin } from '../config';
 import { onUpdate } from './update';
 
@@ -15,7 +14,6 @@ import cors = require("cors");
 const PORT = process.env.NODE_ENV === 'development' ? 3000 : 443;
 const PUBLIC_DIR = "./public";
 
-const c = new StatsD('localhost', 8125);
 const app = express();
 
 app.use(cors({
@@ -30,11 +28,6 @@ app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000000 }, resave: 
 app.all("/upload", onUpload);
 
 app.post("/update", onUpdate);
-
-app.all("/graphql", function (req: any, res: any, next: any) {
-  c.increment('api.requests');
-  next();
-});
 
 const apolloServer = new ApolloServer({
   typeDefs,
