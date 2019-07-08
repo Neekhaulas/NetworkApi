@@ -1,11 +1,12 @@
 import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
-import { awsAccessKey, awsSecretAccessKey, bucket } from '../config';
+import { awsAccessKey, awsSecretAccessKey, bucket, awsEndpoint } from '../config';
 import { PutObjectRequest } from 'aws-sdk/clients/s3';
 
 const s3 = new AWS.S3({
     accessKeyId: awsAccessKey,
-    secretAccessKey: awsSecretAccessKey
+    secretAccessKey: awsSecretAccessKey,
+    endpoint: awsEndpoint
 });
 
 export function sendToS3(file: string, name: string) {

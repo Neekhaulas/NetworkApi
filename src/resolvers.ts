@@ -39,6 +39,28 @@ const resolversMap: IResolvers = {
             `;
             return ctx.prisma.posts(userArgs).$fragment(fragment);
         },
+        async post(_: any, args: any, ctx: { prisma: Prisma, req: any }) {
+            const fragment = `
+            fragment PostWithUser on Post {
+                id
+                content
+                createdAt
+                updatedAt
+                user {
+                    id
+                    username
+                    avatar
+                }
+                media {
+                    id
+                    uri
+                }
+            }
+            `;
+            return ctx.prisma.post({
+                id: args.id
+            }).$fragment(fragment);
+        },
         async user(_: void, args: any, ctx: any) {
             return ctx.prisma.user({ id: args.id });
         },
@@ -47,6 +69,30 @@ const resolversMap: IResolvers = {
                 return ctx.prisma.user({ id: ctx.req.session.user });
             }
             return null;
+        },
+        async comments(_: void, args: any, ctx: {prisma: Prisma, req: any}) {
+            const fragment = `
+            fragment CommentWithUser on Comment {
+                id
+                author {
+                    id
+                    username
+                    avatar
+                }
+                media {
+                    id
+                    uri
+                }
+            }
+            `;
+
+            return ctx.prisma.comments({
+                where: {
+                    post: {
+                        id: args.id
+                    }
+                }
+            }).$fragment(fragment);
         }
     },
     Mutation: {
@@ -157,6 +203,14 @@ const resolversMap: IResolvers = {
                 }
             });
             return exists;
+        },
+        async comments(parent: any, args: any, ctx: any) {
+            const count: number = await ctx.prisma.commentsConnection({
+                where: {
+                    post: { id: parent.id }
+                }
+            }).aggregate().count();
+            return count;
         }
     },
     User: {

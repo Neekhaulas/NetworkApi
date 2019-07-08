@@ -27,8 +27,6 @@ app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000000 }, resave: 
 
 app.all("/upload", onUpload);
 
-app.post("/update", onUpdate);
-
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,

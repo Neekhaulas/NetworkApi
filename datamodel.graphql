@@ -10,10 +10,19 @@ type User {
 type Post {
 	id: ID! @id
 	content: String
-	createdAt: DateTime! @createdAt
-	updatedAt: DateTime! @updatedAt
 	user: User!
 	media: Media!
+	createdAt: DateTime! @createdAt
+	updatedAt: DateTime! @updatedAt
+}
+
+type Comment {
+	id: ID! @id
+	post: Post!
+	content: String
+	user: User!
+	createdAt: DateTime! @createdAt
+	updatedAt: DateTime! @updatedAt
 }
 
 type Media {

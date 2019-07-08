@@ -22,6 +22,16 @@ const schema = gql`
         createdAt: String
         likes: Int
         like: Boolean
+        comments: Int
+    }
+    
+    type Comment {
+        id: ID
+        content: String
+        post: Post
+        author: User
+        date: String
+        createdAt: String
     }
 
     type Media {
@@ -49,7 +59,9 @@ const schema = gql`
         me: User
         users(first: Int, skip: Int, after: String): [User]
         posts(user: ID, first: Int, skip: Int, after: String): [Post]
+        post(id: ID): Post
         medias: [Media]
+        comments(id: ID): [Comment]
     }
 
     type Mutation {
