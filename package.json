@@ -24,7 +24,7 @@
     "@types/morgan": "^1.7.35",
     "@types/multiparty": "^0.0.32",
     "@types/rimraf": "^2.0.2",
-    "@types/uuid": "^3.4.4",
+    "@types/uuid": "^3.4.5",
     "amqplib": "^0.5.3",
     "apollo-server": "^2.6.1",
     "apollo-server-express": "^2.6.7",
