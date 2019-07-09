@@ -74,14 +74,12 @@ const resolversMap: IResolvers = {
             const fragment = `
             fragment CommentWithUser on Comment {
                 id
-                author {
+                content
+                createdAt
+                user {
                     id
                     username
                     avatar
-                }
-                media {
-                    id
-                    uri
                 }
             }
             `;

@@ -6,7 +6,6 @@ import * as fs from "fs";
 import * as rimraf from "rimraf";
 import { prisma } from "./generated/prisma-client";
 import { sendToS3 } from "./sendS3";
-import * as amqp from 'amqplib';
 
 const fileInputName = process.env.FILE_INPUT_NAME || "qqfile";
 const maxFileSize = process.env.MAX_FILE_SIZE || 0; // in bytes, 0 for unlimited

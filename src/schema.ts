@@ -29,7 +29,7 @@ const schema = gql`
         id: ID
         content: String
         post: Post
-        author: User
+        user: User
         date: String
         createdAt: String
     }

@@ -1,17 +1,16 @@
 import * as express from "express";
-import * as fs from "fs";
 import { ApolloServer } from "apollo-server-express";
 import { prisma } from "./generated/prisma-client";
 import * as session from "express-session";
-import { key, cert, origin } from '../config';
-import { onUpdate } from './update';
+import {createServer} from "http";
+import { origin } from '../config';
 
 import typeDefs from "./schema";
 import resolvers from "./resolvers";
 import onUpload from "./upload";
 import cors = require("cors");
 
-const PORT = process.env.NODE_ENV === 'development' ? 3000 : 443;
+const PORT = 3000;
 const PUBLIC_DIR = "./public";
 
 const app = express();
@@ -53,11 +52,7 @@ apolloServer.applyMiddleware({
   }
 });
 
-const ssl = process.env.NODE_ENV === 'development' ? {} : { key: fs.readFileSync(key), cert: fs.readFileSync(cert) }
-const http = process.env.NODE_ENV === 'development' ? require('http') : require('https');
-
-const httpServer = http.createServer(
-  ssl,
+const httpServer = createServer(
   app
 );
 
@@ -65,6 +60,6 @@ apolloServer.installSubscriptionHandlers(httpServer);
 
 httpServer.listen({ port: PORT }, () => {
   console.log(
-    `🚀 Server ready at https://localhost:${PORT}/graphql`,
+    `🚀 Server ready at http://localhost:${PORT}/graphql`,
   );
 });
