@@ -10,4 +10,6 @@ RUN npm install
 
 COPY . .
 
-CMD ["npm", "run", "generate"]
+RUN npm generate
+
+CMD ["npm", "start"]

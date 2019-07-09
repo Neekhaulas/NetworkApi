@@ -1,3 +1,5 @@
+import { config } from "dotenv";
+config();
 import * as express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { prisma } from "./generated/prisma-client";
