@@ -70,7 +70,20 @@ const resolversMap: IResolvers = {
             }
             return null;
         },
-        async comments(_: void, args: any, ctx: {prisma: Prisma, req: any}) {
+        async comments(_: void, args: any, ctx: { prisma: Prisma, req: any }) {
+            let userArgs: {
+                first: number,
+                orderBy: any,
+                where: Maybe<any>
+            } = {
+                first: Math.min(20, args.first ? args.first : 20),
+                orderBy: 'createdAt_DESC',
+                where: {
+                    post: {
+                        id: args.id
+                    }
+                }
+            }
             const fragment = `
             fragment CommentWithUser on Comment {
                 id
@@ -84,13 +97,7 @@ const resolversMap: IResolvers = {
             }
             `;
 
-            return ctx.prisma.comments({
-                where: {
-                    post: {
-                        id: args.id
-                    }
-                }
-            }).$fragment(fragment);
+            return ctx.prisma.comments(userArgs).$fragment(fragment);
         }
     },
     Mutation: {
@@ -169,6 +176,9 @@ const resolversMap: IResolvers = {
             };
         },
         async post(_: any, args: any, ctx: { prisma: Prisma, req: any }) {
+            if (!ctx.req.session.user) {
+                throw new Error('Not authorized');
+            }
             let post = await ctx.prisma.createPost({
                 content: args.content,
                 user: { connect: { id: ctx.req.session.user } },
@@ -177,6 +187,29 @@ const resolversMap: IResolvers = {
             return {
                 post: post
             };
+        },
+        async addComment(_: any, args: any, ctx: { prisma: Prisma, req: any }) {
+            if (!ctx.req.session.user) {
+                throw new Error('Not authorized');
+            }
+            const fragment = `
+            fragment CommentWithUser on Comment {
+                id
+                content
+                createdAt
+                user {
+                    id
+                    username
+                    avatar
+                }
+            }
+            `;
+            let result = await ctx.prisma.createComment({
+                content: args.content,
+                user: { connect: { id: ctx.req.session.user } },
+                post: { connect: { id: args.post } }
+            }).$fragment(fragment);
+            return result;
         }
     },
     Post: {
@@ -212,7 +245,7 @@ const resolversMap: IResolvers = {
         }
     },
     User: {
-        async followers(parent: any, args: any, ctx: {prisma: Prisma, req: any}) {
+        async followers(parent: any, args: any, ctx: { prisma: Prisma, req: any }) {
             const count: number = await ctx.prisma.followsConnection({
                 where: {
                     followed: { id: parent.id }

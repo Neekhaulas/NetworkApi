@@ -22,7 +22,7 @@
   "dependencies": {
     "@types/amqplib": "^0.5.13",
     "@types/cookie-parser": "^1.4.1",
-    "@types/dotenv": "6.1.1",
+    "@types/dotenv": "^6.1.1",
     "@types/express-session": "1.15.13",
     "@types/fluent-ffmpeg": "^2.1.10",
     "@types/graphql": "^14.2.2",

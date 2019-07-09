@@ -73,6 +73,7 @@ const schema = gql`
         post(content: String!, media: ID!): PostAnswer!
         setMediaUrl(mediaId: ID!, uri: String!): MediaMeta!
         follow(user: ID!): Boolean!
+        addComment(content: String!, post: ID!): Comment!
     }
 `;
 
