@@ -10,6 +10,7 @@ const resolversMap: IResolvers = {
             let userArgs: {
                 first: number,
                 orderBy: any,
+                after?: string,
                 where?: Maybe<any>
             } = {
                 first: Math.min(20, args.first ? args.first : 20),
@@ -20,6 +21,7 @@ const resolversMap: IResolvers = {
                     id: args.user
                 }
             };
+            if (args.after) userArgs.after = args.after;
             const fragment = `
             fragment PostWithUser on Post {
                 id
