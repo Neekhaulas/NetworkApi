@@ -25,7 +25,7 @@
     "@types/dotenv": "6.1.1",
     "@types/express-session": "1.15.13",
     "@types/fluent-ffmpeg": "^2.1.10",
-    "@types/graphql": "^14.2.2",
+    "@types/graphql": "^14.5.0",
     "@types/mkdirp": "^0.5.2",
     "@types/morgan": "^1.7.35",
     "@types/multiparty": "^0.0.32",
